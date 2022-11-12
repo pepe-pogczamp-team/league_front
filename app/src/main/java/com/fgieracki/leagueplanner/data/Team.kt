@@ -4,6 +4,7 @@ class Team (
     val name: String,
     val teamId: Int,
     val leagueId: Int,
+    val points: Int,
     val matches: List<Match>
         ){
 

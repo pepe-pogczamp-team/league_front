@@ -6,14 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.fgieracki.leagueplanner.data.League
+import com.fgieracki.leagueplanner.data.Team
 import com.fgieracki.leagueplanner.ui.theme.*
-import com.fgieracki.leagueplanner.ui.theme.components.LeagueList
-import com.fgieracki.leagueplanner.ui.theme.components.NavBar
-import com.fgieracki.leagueplanner.ui.theme.components.Navigation
-import com.fgieracki.leagueplanner.ui.theme.components.TopBar
+import com.fgieracki.leagueplanner.ui.theme.components.*
 
 val leagues = listOf<League>(League("test 1",1, 1,),
     League("test 2", 2, 2),
@@ -45,6 +44,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenAllLeagues(onNavigateToYours: () -> Unit){
     LeaguePlannerTheme {
@@ -57,31 +57,70 @@ fun ScreenAllLeagues(onNavigateToYours: () -> Unit){
                 Box(modifier = Modifier.weight(1f)){
                     LeagueList(leagues, -1)
                 }
-                NavBar(screen = 1, onNavigateToYours = onNavigateToYours)
+                LeagueNavBar(screen = 1, onNavigateToYours = onNavigateToYours)
+            }
+        }
+    }
+}
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ScreenAllLeagues(){
+//    Scaffold(
+//        topBar = { TopBar(name = "Wszystkie Ligi")}
+////        bottomBar = { LeagueNavBar()}
+//    ) {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = LightGray
+//        ) {
+//            LeagueList(leagues = leagues, ownerId = -1)
+//        }
+//    }
+//}
+
+@Composable
+fun ScreenYourLeagues(ownerId: Int = 1, onNavigateToAll: () -> Unit){
+    LeaguePlannerTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = LightGray
+        ){
+            Column {
+                TopBar(name = "Twoje Ligi")
+                Box(modifier = Modifier.weight(1f)){
+                    LeagueList(leagues, ownerId)
+                    FABAddLeague(modifier = Modifier.align(Alignment.BottomEnd))
+                }
+
+                LeagueNavBar(screen = 0, onNavigateToAll = onNavigateToAll)
             }
 
         }
     }
 }
 
+
+
 @Composable
-fun ScreenYourLeagues(onNavigateToAll: () -> Unit){
+fun ScreenLeagueTeams(league: League, teams: List<Team>){
     LeaguePlannerTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = LightGray
         ) {
             Column {
-                TopBar(name = "Twoje Ligi")
+                TopBar(name = league.name)
                 Box(modifier = Modifier.weight(1f)){
-                    LeagueList(leagues, 1)
+                    TeamList(teams = teams)
                 }
-                NavBar(screen = 0, onNavigateToAll = onNavigateToAll)
+                LeagueNavBar(screen = 1) //TODO: change ME!
             }
 
         }
     }
 }
+
 
 
 
