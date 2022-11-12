@@ -97,22 +97,4 @@ fun LeagueNavBar(screen: Int, navController: NavController){
 }
 
 
-@Composable
-fun FABAddLeague(modifier : Modifier = Modifier){
-    FloatingActionButton(
-        onClick = { /*TODO*/ },
-        modifier = modifier
-            .padding(16.dp)
-        ,
-//        backgroundColor = LeagueBlue,
-        contentColor = MaterialTheme.colorScheme.primary,
-        elevation = FloatingActionButtonDefaults.elevation(16.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_add_24),
-            contentDescription = "Add League"
-        )
-    }
-}
-
 

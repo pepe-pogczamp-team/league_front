@@ -22,6 +22,7 @@ import com.fgieracki.leagueplanner.ui.components.LeagueNavBar
 import com.fgieracki.leagueplanner.ui.components.Navigation
 import com.fgieracki.leagueplanner.ui.theme.*
 import com.fgieracki.leagueplanner.ui.components.*
+import com.fgieracki.leagueplanner.ui.theme.LeaguePlannerTheme
 
 val leagues = listOf<League>(League("test 1",1, 1,),
     League("test 2", 2, 2),
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LeaguePlannerTheme {
+            LeaguePlannerTheme() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = LightGray,
