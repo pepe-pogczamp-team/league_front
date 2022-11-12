@@ -20,8 +20,16 @@ private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    surface = Color.White,
-    onBackground = LightBlack
+    surface = Gray,
+    onBackground = Color.Blue,
+    onSurface = Color.Blue,
+    background = Color.Blue,
+    onPrimary = Color.Blue,
+    onSecondary = Color.Blue,
+    onTertiary = Color.Blue,
+    error = Color.Blue,
+    onError = Color.Blue,
+    surfaceTint = Color.Blue,
 
 
 )
@@ -48,8 +56,9 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun LeaguePlannerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+//    darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
+    darkTheme: Boolean = true,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

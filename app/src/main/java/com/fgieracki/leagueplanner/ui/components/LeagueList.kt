@@ -1,4 +1,4 @@
-package com.fgieracki.leagueplanner.ui.theme.components
+package com.fgieracki.leagueplanner.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,26 +22,26 @@ import com.fgieracki.leagueplanner.data.Team
 import com.fgieracki.leagueplanner.ui.theme.DarkGray
 import com.fgieracki.leagueplanner.ui.theme.Gray
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
+import com.fgieracki.leagueplanner.ui.theme.LeaguePlannerTheme
 
-@Composable
-fun TopBar(name: String){
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = DarkGray)
 
-        ,
-    ) {
-        Text(text = name.uppercase(),
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(16.dp)
-
-        )
-    }
-}
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .background(color = DarkGray)
+//
+//        ,
+//    ) {
+//        Text(text = name.uppercase(),
+//            color = Color.White,
+//            fontWeight = FontWeight.Bold,
+//            modifier = Modifier
+//                .align(Alignment.Center)
+//                .padding(16.dp)
+//
+//        )
+//    }
+//}
 
 
 
@@ -48,8 +49,7 @@ fun TopBar(name: String){
 
 @Composable
 fun LeagueList (leagues: List<League>, ownerId: Int, modifier: Modifier = Modifier){
-    LazyColumn(modifier = modifier
-        .padding(16.dp)){
+    LazyColumn(modifier = modifier){
         if(ownerId == -1){
             items(leagues.size){
                 LeagueItem(leagues[it])
