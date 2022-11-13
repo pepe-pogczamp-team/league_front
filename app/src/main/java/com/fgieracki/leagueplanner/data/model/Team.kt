@@ -1,4 +1,6 @@
-package com.fgieracki.leagueplanner.data
+package com.fgieracki.leagueplanner.data.model
+
+import com.fgieracki.leagueplanner.data.model.Match
 
 class Team (
     val name: String,

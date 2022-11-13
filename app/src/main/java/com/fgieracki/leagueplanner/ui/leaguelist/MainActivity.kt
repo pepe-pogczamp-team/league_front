@@ -14,9 +14,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.fgieracki.leagueplanner.R
-import com.fgieracki.leagueplanner.data.League
+import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.ui.components.LeagueList
 import com.fgieracki.leagueplanner.ui.components.LeagueNavBar
 import com.fgieracki.leagueplanner.ui.components.Navigation
@@ -24,7 +25,8 @@ import com.fgieracki.leagueplanner.ui.theme.*
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.LeaguePlannerTheme
 
-val leagues = listOf<League>(League("test 1",1, 1,),
+val leagues = listOf<League>(
+    League("test 1",1, 1,),
     League("test 2", 2, 2),
     League("test 3", 3, 3),
     League("test 4", 4, 4),
@@ -43,7 +45,8 @@ val leagues = listOf<League>(League("test 1",1, 1,),
     League("test 17", 17, 17),
     League("test 18", 18, 18),
     League("test 19", 19, 19),
-    League("test 20", 20, 20))
+    League("test 20", 20, 20)
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,24 +85,28 @@ fun TopBar(name: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenAllLeagues(allLeagues: List<League> = leagues, navController: NavController){
+fun ScreenAllLeagues(navController: NavController){
+    val viewModel: LeagueListViewModel = viewModel()
+    val leagues = viewModel.leaguesState.value
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = "Wszystkie Ligi") },
         bottomBar = { LeagueNavBar(screen = 1, navController = navController) },
-        content = { LeagueList(allLeagues, -1, modifier = Modifier.padding(it)) },
+        content = { LeagueList(leagues, -1, modifier = Modifier.padding(it)) },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenMyLeagues(allLeagues: List<League> = leagues, ownerId: Int = 1,
+fun ScreenMyLeagues(ownerId: Int = 1,
                     navController: NavController){
+    val viewModel: LeagueListViewModel = viewModel()
+    val leagues = viewModel.leaguesState.value
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = "Moje Ligi") },
         bottomBar = { LeagueNavBar(screen = 0, navController = navController) },
-        content = { LeagueList(allLeagues, ownerId, modifier = Modifier.padding(it)) },
+        content = { LeagueList(leagues, ownerId, modifier = Modifier.padding(it)) },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = { FABAddLeague() },
     )

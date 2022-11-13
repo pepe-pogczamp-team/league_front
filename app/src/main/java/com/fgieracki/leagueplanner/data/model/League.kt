@@ -1,6 +1,8 @@
-package com.fgieracki.leagueplanner.data
+package com.fgieracki.leagueplanner.data.model
 
-class League (
+import com.google.gson.annotations.SerializedName
+
+data class League (
     val name: String,
     val leagueId: Int,
     val ownerId: Int,

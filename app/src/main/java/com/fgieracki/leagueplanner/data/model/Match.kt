@@ -1,4 +1,4 @@
-package com.fgieracki.leagueplanner.data
+package com.fgieracki.leagueplanner.data.model
 
 class Match (
     val matchId: Int,

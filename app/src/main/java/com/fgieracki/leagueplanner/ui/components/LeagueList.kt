@@ -5,24 +5,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.fgieracki.leagueplanner.R
-import com.fgieracki.leagueplanner.data.League
-import com.fgieracki.leagueplanner.data.Team
-import com.fgieracki.leagueplanner.ui.theme.DarkGray
+import com.fgieracki.leagueplanner.data.model.League
+import com.fgieracki.leagueplanner.data.model.Team
 import com.fgieracki.leagueplanner.ui.theme.Gray
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
-import com.fgieracki.leagueplanner.ui.theme.LeaguePlannerTheme
 
 
 //    Box(
