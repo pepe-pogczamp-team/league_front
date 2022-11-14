@@ -18,8 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.fgieracki.leagueplanner.data.mappers.MatchAndTeamtoMatchDisplay
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
+import com.fgieracki.leagueplanner.data.model.MatchDisplay
 import com.fgieracki.leagueplanner.data.model.Team
 import com.fgieracki.leagueplanner.ui.components.LeagueList
 import com.fgieracki.leagueplanner.ui.components.LeagueListNavBar
@@ -95,7 +97,7 @@ fun ScreenLeagueTeams(leagueId: Int, //TODO: change me
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = league.name) },
-        bottomBar = { LeagueNavBar(screen = 0, navController = navController) },
+        bottomBar = { LeagueNavBar(screen = 0, leagueId, navController = navController) },
         content = { TeamList(teams, modifier = Modifier.padding(it)) },
     )
 }
@@ -110,8 +112,14 @@ fun ScreenLeagueMatches(leagueId: Int, navController: NavController){
 
     val league = viewModel.leagueState.collectAsState().value
     val teams = viewModel.teamsState.collectAsState().value
-    val matchesViewModel = viewModel.matchesState.collectAsState().value
+    val matches = viewModel.matchesState.collectAsState().value
 
+    Scaffold(
+        containerColor = LightGray,
+        topBar = { TopBar(name = league.name) },
+        bottomBar = { LeagueNavBar(screen = 1, leagueId, navController = navController) },
+        content = { MatchList(matches, teams, modifier = Modifier.padding(it)) },
+    )
 }
 
 @Composable
@@ -139,7 +147,21 @@ fun LeagueItem(league: League, clickAction: () -> Unit){
 }
 
 @Composable
-fun MatchItem(){
+fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier){
+    Column(modifier = modifier) {
+        matches.forEach { match ->
+            MatchItem(MatchAndTeamtoMatchDisplay(match, teams))
+        }
+    }
+}
+
+@Composable
+fun MatchItem(match: MatchDisplay){
+    val team1 = "test1"
+    val team2 = "test2"
+    val scores = "0 - 0"
+//    val scores = if(score1 == null && score2 == null) "? - ?" else "$score1 - $score2"
+
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -150,21 +172,21 @@ fun MatchItem(){
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(text = "Team 1",
+            Text(text = "$team1",
                 color = Color.White,
                 fontSize = 16.sp,
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 4.dp)
                     .align(Alignment.Start)
                 )
-            Text(text = "15 - 24",
+            Text(text = "$scores",
                 color = Color.LightGray,
                 fontSize = 24.sp,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            Text(text = "Team 2",
+            Text(text = "$team2",
                 color = Color.White,
                 fontSize = 16.sp,
                 modifier = Modifier
@@ -185,7 +207,7 @@ fun MatchItem(){
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MatchItem()
+//    MatchItem()
 //    TeamItem(Team("test", 1, 1, 1))
 }
 

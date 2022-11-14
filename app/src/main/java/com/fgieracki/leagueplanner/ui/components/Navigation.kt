@@ -1,6 +1,7 @@
 package com.fgieracki.leagueplanner.ui.components
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.painterResource
@@ -83,7 +84,7 @@ fun LeagueListNavBar(screen: Int, navController: NavController){
                 onClick = {
                     selectedItem = index
 
-                    if(index == 0){
+                    if(index == 0){ //TODO; repair this
                         navController.navigate("my_leagues"){
                             launchSingleTop = true
                             popUpTo("all_leagues"){
@@ -108,7 +109,7 @@ fun LeagueListNavBar(screen: Int, navController: NavController){
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeagueNavBar(screen: Int, navController: NavController){
+fun LeagueNavBar(screen: Int, leagueId: Int, navController: NavController){
     var selectedItem by remember { mutableStateOf(screen) }
     val items = listOf("Drużyny", "Mecze")
     val icons = listOf(painterResource(id = R.drawable.ic_baseline_groups_24),
@@ -124,17 +125,17 @@ fun LeagueNavBar(screen: Int, navController: NavController){
                     selectedItem = index
 
                     if(index == 0){
-                        navController.navigate("my_leagues"){
+                        navController.navigate("league_teams/${leagueId}"){
                             launchSingleTop = true
                             popUpTo("all_leagues"){
-                                inclusive = true
+                                inclusive = false
                             }
                         }
                     } else {
-                        navController.navigate("all_leagues"){
+                        navController.navigate("league_matches/${leagueId}"){
                             launchSingleTop = true
-                            popUpTo("my_leagues"){
-                                inclusive = true
+                            popUpTo("all_leagues"){
+                                inclusive = false
                             }
                         }
                     }
