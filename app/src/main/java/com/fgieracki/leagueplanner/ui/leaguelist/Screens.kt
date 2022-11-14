@@ -80,6 +80,7 @@ fun ScreenMyLeagues(
     onNavigateToAllLeagues: () -> Unit,
     onNavigateToLeagueTeams: (Int) -> Unit,
 ) {
+    val showDialog = remember { mutableStateOf(false) }
     val viewModel: LeagueListViewModel = viewModel()
     val leagues = viewModel.leaguesState.collectAsState().value
     Scaffold(
@@ -95,12 +96,17 @@ fun ScreenMyLeagues(
         content = {
             LeagueList(leagues, userId, modifier = Modifier.padding(it),
                 onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
+            if(showDialog.value) {
+                AddLeagueDialog(onDismiss = { showDialog.value = false })
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButtonAdd(
                 contentDesc = "Dodaj Ligę",
-                onClick = {})
+                onClick = {
+                    showDialog.value = true
+                })
         },
     )
 }
@@ -179,60 +185,6 @@ fun ScreenLeagueMatches(
 }
 
 
-@Composable
-fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        matches.forEach { match ->
-            MatchItem(mapMatchAndTeamToMatchDisplay(match, teams))
-        }
-    }
-}
-
-@Composable
-fun MatchItem(match: MatchDisplay) {
-    Log.d("MatchItem", match.toString())
-    val team1 = match.homeTeamName
-    val team2 = match.awayTeamName
-    val scores = if(match.homeTeamScore == null && match.awayTeamScore == null) "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(color = Gray, shape = RoundedCornerShape(8.dp))
-            .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "$team1",
-                color = Color.White,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .align(Alignment.Start)
-            )
-            Text(
-                text = "$scores",
-                color = Color.LightGray,
-                fontSize = 24.sp,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Text(
-                text = "$team2",
-                color = Color.White,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .align(Alignment.End)
-            )
-        }
-    }
-}
 
 
 @Preview(showBackground = true)

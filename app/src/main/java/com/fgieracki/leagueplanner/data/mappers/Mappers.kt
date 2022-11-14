@@ -14,8 +14,6 @@ fun LeagueResponseDTO.toLeagueList(): List<League> {
             name = it.name,
             leagueId = it.leagueId.toInt(),
             ownerId = it.leagueId.toInt(),
-            teams = emptyList(),
-            matches = emptyList()
         )
     }
 }
@@ -25,11 +23,9 @@ fun TeamResponseDTO.toTeamList(): List<Team> {
         Team(
             name = it.name,
             teamId = it.teamId.toInt(),
-//            leagueId = it.teamId.toInt(),
-            leagueId = 1,
+            leagueId = 1, //TODO: fix this
             points = 0,
-            city = "Kraków",
-            matches = emptyList()
+            city = "Kraków", //TODO: fix this
         )
     }
 }
@@ -39,8 +35,6 @@ fun LeagueResponse.toLeague(): League {
         name = name,
         leagueId = leagueId.toInt(),
         ownerId = leagueId.toInt(),
-        teams = emptyList(),
-        matches = emptyList()
     )
 }
 

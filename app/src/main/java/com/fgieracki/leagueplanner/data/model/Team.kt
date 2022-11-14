@@ -8,5 +8,4 @@ val teamId: Int,
 val leagueId: Int,
 val points: Int = 0,
 val city: String = "Kraków", //TODO: remove
-val matches: List<Match>? = emptyList()
 )

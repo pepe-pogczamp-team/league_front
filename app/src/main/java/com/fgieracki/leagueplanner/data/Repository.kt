@@ -34,14 +34,14 @@ val leagues = listOf<League>(
 )
 
 val teams = listOf<Team>(
-    Team("team 1", 1, 1, 0, "Kraków", emptyList()),
-    Team("team 2", 2, 1, 0, "Gdańsk", emptyList()),
-    Team("team 3", 3, 1, 0, "Warszawa", emptyList()),
-    Team("team 4", 4, 2, 0, "Poznań", emptyList()),
-    Team("team 5", 5, 2, 0, "Wrocław", emptyList()),
-    Team("team 6", 6, 2, 0, "Łódź", emptyList()),
-    Team("team 7", 7, 3, 0, "Kraków", emptyList()),
-    Team("team 8", 8, 3, 0, "Gdańsk", emptyList()),
+    Team("team 1", 1, 1, 12, "Kraków"),
+    Team("team 2", 2, 1, 12, "Gdańsk"),
+    Team("team 3", 3, 1, 43, "Warszawa"),
+    Team("team 4", 4, 2, 55, "Poznań"),
+    Team("team 5", 5, 2, 2, "Wrocław"),
+    Team("team 6", 6, 2, 1, "Łódź"),
+    Team("team 7", 7, 3, 44, "Kraków"),
+    Team("team 8", 8, 3, 77, "Gdańsk"),
 )
 
 val matches = listOf<Match>(
@@ -82,7 +82,7 @@ class Repository(private val api: LeagueWebService = LeagueWebService) {
 
         return teams.filter {
             it.leagueId == leagueId
-        }
+        }.sortedBy { it.points }.reversed()
     }
 
     suspend fun getLeague(leagueId: Int): League {

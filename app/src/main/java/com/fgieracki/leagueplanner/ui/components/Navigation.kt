@@ -152,28 +152,6 @@ fun LeagueNavBar(
                         onNavigateToLeagueTeams()
                     else if (index == 1)
                         onNavigateToLeagueMatches()
-
-//                        if(navController.currentBackStackEntry?.destination?.route?.contains("league_teams") == false){
-//                            navController.popBackStack()
-//                        }
-//                        navController.navigate("league_teams/${leagueId}"){
-//                            launchSingleTop = true
-//                            popUpTo("all_leagues"){
-////                                Log.d("NAV_DEBUG", "league_teams/$leagueId")
-//                                inclusive = false
-//                            }
-//                        }
-//                    } else
-                    //                    {
-////                        navController.popBackStack()
-//                        navController.navigate("league_matches/${leagueId}"){
-////                            Log.d("NAV_DEBUG2", "league_matches/${leagueId}")
-//                            launchSingleTop = true
-//                            popUpTo("all_leagues"){
-//                                inclusive = false
-//                            }
-//                        }
-//                    }
                 }
             )
         }
