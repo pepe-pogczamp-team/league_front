@@ -44,7 +44,7 @@ fun LeagueResponse.toLeague(): League {
     )
 }
 
-fun MatchAndTeamtoMatchDisplay(match: Match, teams: List<Team>): MatchDisplay {
+fun mapMatchAndTeamToMatchDisplay(match: Match, teams: List<Team>): MatchDisplay {
 //    homeTeam: Team, awayTeam: Team
     val homeTeam = teams.find { it.teamId == match.homeTeamId }
     val awayTeam = teams.find { it.teamId == match.awayTeamId }

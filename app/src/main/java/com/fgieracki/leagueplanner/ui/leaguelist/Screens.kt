@@ -1,6 +1,7 @@
 package com.fgieracki.leagueplanner.ui.leaguelist
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -16,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fgieracki.leagueplanner.data.mappers.MatchAndTeamtoMatchDisplay
+import com.fgieracki.leagueplanner.data.mappers.mapMatchAndTeamToMatchDisplay
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.MatchDisplay
 import com.fgieracki.leagueplanner.data.model.Team
@@ -92,7 +93,7 @@ fun ScreenMyLeagues(
             )
         },
         content = {
-            LeagueList(leagues, -1, modifier = Modifier.padding(it),
+            LeagueList(leagues, userId, modifier = Modifier.padding(it),
                 onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -182,17 +183,17 @@ fun ScreenLeagueMatches(
 fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         matches.forEach { match ->
-            MatchItem(MatchAndTeamtoMatchDisplay(match, teams))
+            MatchItem(mapMatchAndTeamToMatchDisplay(match, teams))
         }
     }
 }
 
 @Composable
 fun MatchItem(match: MatchDisplay) {
-    val team1 = "test1"
-    val team2 = "test2"
-    val scores = "0 - 0"
-//    val scores = if(score1 == null && score2 == null) "? - ?" else "$score1 - $score2"
+    Log.d("MatchItem", match.toString())
+    val team1 = match.homeTeamName
+    val team2 = match.awayTeamName
+    val scores = if(match.homeTeamScore == null && match.awayTeamScore == null) "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
 
     Box(
         modifier = Modifier
