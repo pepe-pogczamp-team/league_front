@@ -13,14 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.fgieracki.leagueplanner.R
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Team
-import com.fgieracki.leagueplanner.ui.leaguelist.LeagueItem
 import com.fgieracki.leagueplanner.ui.theme.DarkGray
 import com.fgieracki.leagueplanner.ui.theme.Gray
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
@@ -28,36 +26,48 @@ import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(name: String) {
-    TopAppBar(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = DarkGray,
-        ),
+fun TopBar(name: String, showBackButton: Boolean = false, clickAction: () -> Unit) {
+    CenterAlignedTopAppBar(
         title = {
             Text(
-                name, fontWeight = FontWeight.Bold,
-                modifier = Modifier
+                text = name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = { clickAction() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
+                        contentDescription = "Cofnij",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
     )
 }
 
 @Composable
-fun LeagueList (leagues: List<League>, ownerId: Int, modifier: Modifier = Modifier, navController: NavController) {
-    LazyColumn(modifier = modifier){
-        if(ownerId == -1){
-            items(leagues.size){
-                LeagueItem(leagues[it]){
-                    navController.navigate("league_teams/${leagues[it].leagueId}")
+fun LeagueList(
+    leagues: List<League>,
+    ownerId: Int,
+    modifier: Modifier = Modifier,
+    onNavigateToLeague: (Int) -> Unit
+) {
+    LazyColumn(modifier = modifier) {
+        if (ownerId == -1) {
+            items(leagues.size) {
+                LeagueItem(leagues[it]) {
+                    onNavigateToLeague(leagues[it].leagueId)
                 }
             }
         } else {
-            items(leagues.size){
-                if(leagues[it].ownerId == ownerId){
-                    LeagueItem(leagues[it]){
-                        navController.navigate("league_teams/${leagues[it].leagueId}")
+            items(leagues.size) {
+                if (leagues[it].ownerId == ownerId) {
+                    LeagueItem(leagues[it]) {
+                        onNavigateToLeague(leagues[it].leagueId)
                     }
                 }
             }
@@ -66,22 +76,25 @@ fun LeagueList (leagues: List<League>, ownerId: Int, modifier: Modifier = Modifi
 }
 
 
-
 @Composable
-fun TeamList(teams: List<Team>, modifier: Modifier = Modifier){
-    LazyColumn(modifier = modifier
-//        .padding(16.dp)
-    ){
-        items(teams.size){
+fun TeamList(teams: List<Team>, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(teams.size) {
             TeamItem(teams[it])
         }
     }
 }
 
 @Composable
-fun FABAddLeague(modifier : Modifier = Modifier){
+fun FloatingActionButtonAdd(
+    modifier: Modifier = Modifier,
+    contentDesc: String,
+    onClick: () -> Unit
+) {
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = { onClick() },
         modifier = modifier
             .padding(16.dp)
             .background(Gray, shape = CircleShape)
@@ -93,32 +106,36 @@ fun FABAddLeague(modifier : Modifier = Modifier){
         Icon(
             painter = painterResource(id = R.drawable.ic_baseline_add_24),
             tint = LeagueBlue,
-            contentDescription = "Add League"
+            contentDescription = contentDesc
         )
     }
 }
 
+
 @Composable
-fun TeamItem(team: Team){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)
-        .background(color = Gray, shape = RoundedCornerShape(8.dp))
-        .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
-    ){
+fun TeamItem(team: Team) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(color = Gray, shape = RoundedCornerShape(8.dp))
+            .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
+    ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .align(Alignment.CenterStart),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = team.name,
+            Text(
+                text = team.name,
                 color = Color.White,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .weight(1f)
             )
-            Text(text = team.points.toString(),
+            Text(
+                text = team.points.toString(),
                 color = Color.White,
                 modifier = Modifier
                     .padding(start = 16.dp)
@@ -126,6 +143,32 @@ fun TeamItem(team: Team){
                 textAlign = TextAlign.End
             )
         }
+    }
+
+}
+
+
+@Composable
+fun LeagueItem(league: League, clickAction: () -> Unit) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp)
+        .background(color = Gray, shape = RoundedCornerShape(8.dp))
+        .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
+        .clickable {
+            clickAction()
+        }
+
+
+    ) {
+        Text(
+            text = league.name,
+            color = Color.White,
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterStart)
+
+        )
     }
 
 }

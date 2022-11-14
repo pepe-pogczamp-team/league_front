@@ -11,21 +11,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class LeagueListViewModel(private val repository: Repository = Repository()) : ViewModel() {
-     init {
-         viewModelScope.launch(Dispatchers.IO) {
-             val leagues = getLeagues()
-             leaguesState.value = leagues
-         }
-     }
-
     val leaguesState: MutableStateFlow<List<League>> = MutableStateFlow(emptyList<League>())
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val leagues = getLeagues()
+            leaguesState.value = leagues
+        }
+    }
 
     private suspend fun getLeagues(): List<League> {
         return repository.getLeagues()
     }
 
 }
-
 
 
 class TeamsAndMatchesViewModel(private val repository: Repository = Repository()) : ViewModel() {
@@ -39,7 +38,6 @@ class TeamsAndMatchesViewModel(private val repository: Repository = Repository()
             val teams = repository.getTeams(leagueId)
             teamsState.value = teams
         }
-//        return repository.getTeams(leagueId = leagueId)
     }
 
     fun refreshLeague(leagueId: Int) {

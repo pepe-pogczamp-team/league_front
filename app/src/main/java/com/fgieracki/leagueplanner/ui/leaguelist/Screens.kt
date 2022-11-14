@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,20 +16,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.fgieracki.leagueplanner.data.mappers.MatchAndTeamtoMatchDisplay
-import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.MatchDisplay
 import com.fgieracki.leagueplanner.data.model.Team
-import com.fgieracki.leagueplanner.ui.components.LeagueList
-import com.fgieracki.leagueplanner.ui.components.LeagueListNavBar
-import com.fgieracki.leagueplanner.ui.components.Navigation
-import com.fgieracki.leagueplanner.ui.theme.*
 import com.fgieracki.leagueplanner.ui.components.*
-import com.fgieracki.leagueplanner.ui.theme.LeaguePlannerTheme
+import com.fgieracki.leagueplanner.ui.theme.*
 
-
+val userId: Int = 1
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,44 +42,77 @@ class MainActivity : ComponentActivity() {
 } // MainActivity
 
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenAllLeagues(navController: NavController){
+fun ScreenAllLeagues(
+    onNavigateToMyLeagues: () -> Unit,
+    onNavigateToAllLeagues: () -> Unit = {},
+    onNavigateToLeagueTeams: (Int) -> Unit,
+) {
     val viewModel: LeagueListViewModel = viewModel()
     val leagues = viewModel.leaguesState.collectAsState().value
     Scaffold(
         containerColor = LightGray,
-        topBar = { TopBar(name = "Wszystkie Ligi") },
-        bottomBar = { LeagueListNavBar(screen = 1, navController = navController) },
-        content = { LeagueList(leagues, -1, modifier = Modifier.padding(it), navController = navController) }
+        topBar = { TopBar(name = "Wszystkie Ligi", clickAction = {}) },
+        bottomBar = {
+            LeagueListNavBar(
+                screen = 1,
+                onNavigateToMyLeagues = onNavigateToMyLeagues,
+                onNavigateToAllLeagues = onNavigateToAllLeagues
+            )
+        },
+        content = {
+            LeagueList(
+                leagues,
+                -1,
+                modifier = Modifier.padding(it),
+                onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
+        }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenMyLeagues(ownerId: Int = 1,
-                    navController: NavController){
+fun ScreenMyLeagues(
+    ownerId: Int = userId,
+    onNavigateToMyLeagues: () -> Unit = {},
+    onNavigateToAllLeagues: () -> Unit,
+    onNavigateToLeagueTeams: (Int) -> Unit,
+) {
     val viewModel: LeagueListViewModel = viewModel()
     val leagues = viewModel.leaguesState.collectAsState().value
     Scaffold(
         containerColor = LightGray,
-        topBar = { TopBar(name = "Moje Ligi") },
-        bottomBar = { LeagueListNavBar(screen = 0, navController = navController) },
-        content = { LeagueList(leagues, ownerId, modifier = Modifier.padding(it), navController = navController)},
+        topBar = { TopBar(name = "Moje Ligi", clickAction = {}) },
+        bottomBar = {
+            LeagueListNavBar(
+                screen = 0,
+                onNavigateToMyLeagues = onNavigateToMyLeagues,
+                onNavigateToAllLeagues = onNavigateToAllLeagues
+            )
+        },
+        content = {
+            LeagueList(leagues, -1, modifier = Modifier.padding(it),
+                onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
+        },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FABAddLeague() },
+        floatingActionButton = {
+            FloatingActionButtonAdd(
+                contentDesc = "Dodaj Ligę",
+                onClick = {})
+        },
     )
 }
 
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenLeagueTeams(leagueId: Int, //TODO: change me
-                      navController: NavController){
+fun ScreenLeagueTeams(
+    leagueId: Int, //TODO: change me
+    onNavigateToLeagueMatches: () -> Unit,
+    onNavigateToLeagueTeams: () -> Unit = {},
+    onBackClick: () -> Unit
+) {
     val viewModel: TeamsAndMatchesViewModel = viewModel()
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
@@ -96,15 +122,32 @@ fun ScreenLeagueTeams(leagueId: Int, //TODO: change me
 
     Scaffold(
         containerColor = LightGray,
-        topBar = { TopBar(name = league.name) },
-        bottomBar = { LeagueNavBar(screen = 0, leagueId, navController = navController) },
+        topBar = { TopBar(name = league.name, showBackButton = true, clickAction = onBackClick) },
+        bottomBar = {
+            LeagueNavBar(
+                screen = 0, leagueId,
+                onNavigateToLeagueTeams = onNavigateToLeagueTeams,
+                onNavigateToLeagueMatches = onNavigateToLeagueMatches
+            )
+        },
         content = { TeamList(teams, modifier = Modifier.padding(it)) },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            if (userId == league.ownerId) FloatingActionButtonAdd(
+                contentDesc = "Dodaj Drużynę",
+                onClick = {})
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenLeagueMatches(leagueId: Int, navController: NavController){
+fun ScreenLeagueMatches(
+    leagueId: Int,
+    onNavigateToLeagueMatches: () -> Unit,
+    onNavigateToLeagueTeams: () -> Unit = {},
+    onBackClick: () -> Unit
+) {
     val viewModel: TeamsAndMatchesViewModel = viewModel()
     LaunchedEffect(leagueId) { viewModel.refreshMatches(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
@@ -116,38 +159,27 @@ fun ScreenLeagueMatches(leagueId: Int, navController: NavController){
 
     Scaffold(
         containerColor = LightGray,
-        topBar = { TopBar(name = league.name) },
-        bottomBar = { LeagueNavBar(screen = 1, leagueId, navController = navController) },
+        topBar = { TopBar(name = league.name, showBackButton = true, clickAction = onBackClick) },
+        bottomBar = {
+            LeagueNavBar(
+                screen = 1, leagueId,
+                onNavigateToLeagueTeams = onNavigateToLeagueTeams,
+                onNavigateToLeagueMatches = onNavigateToLeagueMatches
+            )
+        },
         content = { MatchList(matches, teams, modifier = Modifier.padding(it)) },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            if (userId == league.ownerId) FloatingActionButtonAdd(
+                contentDesc = "Dodaj Mecz",
+                onClick = {})
+        },
     )
 }
 
-@Composable
-fun LeagueItem(league: League, clickAction: () -> Unit){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)
-        .background(color = Gray, shape = RoundedCornerShape(8.dp))
-        .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
-        .clickable {
-            clickAction()
-        }
-
-
-    ) {
-        Text(text = league.name,
-            color = Color.White,
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.CenterStart)
-
-        )
-    }
-
-}
 
 @Composable
-fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier){
+fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         matches.forEach { match ->
             MatchItem(MatchAndTeamtoMatchDisplay(match, teams))
@@ -156,37 +188,41 @@ fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modi
 }
 
 @Composable
-fun MatchItem(match: MatchDisplay){
+fun MatchItem(match: MatchDisplay) {
     val team1 = "test1"
     val team2 = "test2"
     val scores = "0 - 0"
 //    val scores = if(score1 == null && score2 == null) "? - ?" else "$score1 - $score2"
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)
-        .background(color = Gray, shape = RoundedCornerShape(8.dp))
-        .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(color = Gray, shape = RoundedCornerShape(8.dp))
+            .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(text = "$team1",
+            Text(
+                text = "$team1",
                 color = Color.White,
                 fontSize = 16.sp,
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 4.dp)
                     .align(Alignment.Start)
-                )
-            Text(text = "$scores",
+            )
+            Text(
+                text = "$scores",
                 color = Color.LightGray,
                 fontSize = 24.sp,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            Text(text = "$team2",
+            Text(
+                text = "$team2",
                 color = Color.White,
                 fontSize = 16.sp,
                 modifier = Modifier
@@ -196,12 +232,6 @@ fun MatchItem(match: MatchDisplay){
         }
     }
 }
-
-
-
-
-
-
 
 
 @Preview(showBackground = true)
