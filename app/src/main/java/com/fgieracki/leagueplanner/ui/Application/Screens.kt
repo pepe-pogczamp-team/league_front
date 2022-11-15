@@ -1,26 +1,14 @@
-package com.fgieracki.leagueplanner.ui.leaguelist
+package com.fgieracki.leagueplanner.ui.Application
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fgieracki.leagueplanner.data.mappers.mapMatchAndTeamToMatchDisplay
-import com.fgieracki.leagueplanner.data.model.Match
-import com.fgieracki.leagueplanner.data.model.MatchDisplay
-import com.fgieracki.leagueplanner.data.model.Team
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.*
 
@@ -97,7 +85,8 @@ fun ScreenMyLeagues(
             LeagueList(leagues, userId, modifier = Modifier.padding(it),
                 onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
             if(showDialog.value) {
-                AddLeagueDialog(onDismiss = { showDialog.value = false })
+                AddLeagueDialog(onDismiss = { showDialog.value = false },
+                    onSubmit = {leagueName -> viewModel.addLeague(leagueName) })
             }
         },
         floatingActionButtonPosition = FabPosition.End,

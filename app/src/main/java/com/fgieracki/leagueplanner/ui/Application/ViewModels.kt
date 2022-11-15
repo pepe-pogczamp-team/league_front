@@ -1,4 +1,4 @@
-package com.fgieracki.leagueplanner.ui.leaguelist
+package com.fgieracki.leagueplanner.ui.Application
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,8 +20,25 @@ class LeagueListViewModel(private val repository: Repository = Repository()) : V
         }
     }
 
+    fun refreshLeagues(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val leagues = repository.getLeagues()
+            leaguesState.value = leagues
+        }
+    }
+
     private suspend fun getLeagues(): List<League> {
         return repository.getLeagues()
+    }
+
+    fun addLeague(newLeagueName: String): Boolean {
+        return if(repository.addLeague(newLeagueName)){
+            refreshLeagues()
+            true
+        } else{
+            false
+        }
+
     }
 
 }

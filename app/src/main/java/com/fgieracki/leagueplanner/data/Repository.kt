@@ -10,7 +10,7 @@ import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.Team
 import kotlinx.coroutines.delay
 
-val leagues = listOf<League>(
+val leagues = mutableListOf<League>(
     League("test 1",1, 1,),
     League("test 2", 2, 2),
     League("test 3", 3, 3),
@@ -104,6 +104,13 @@ class Repository(private val api: LeagueWebService = LeagueWebService) {
         return matches.filter {
             it.leagueId == leagueId
         }
+    }
+
+    fun addLeague(newLeagueName: String): Boolean{
+        val leagueId = leagues.size + 1
+        val newLeague = League(newLeagueName, leagueId, 1)
+        leagues.add(newLeague)
+        return true
     }
 
 }
