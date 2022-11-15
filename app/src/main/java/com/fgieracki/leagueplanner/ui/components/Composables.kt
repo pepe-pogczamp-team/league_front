@@ -268,7 +268,6 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = LightGray, shape = RoundedCornerShape(8.dp))
-                    .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
                     .padding(16.dp),
             ) {
                 Text(
