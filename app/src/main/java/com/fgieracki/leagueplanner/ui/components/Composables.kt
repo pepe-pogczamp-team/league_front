@@ -242,12 +242,6 @@ fun MatchItem(match: MatchDisplay) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AddLeagueDialog()
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}) {
@@ -298,6 +292,73 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}
                         onSubmit(leagueName.text)
                         onDismiss()
                               },
+                    interactionSource = interactionSource,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = btnColor,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = "Dodaj")
+                }
+            }
+        }
+    )
+}
+
+@Preview
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}) {
+    var teamName by remember { mutableStateOf(TextFieldValue("")) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState().value
+    val btnColor = if (isPressed) Color.Green else LeagueBlue
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = true,
+//            decorFitsSystemWindows = true,
+        ),
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = LightGray, shape = RoundedCornerShape(8.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Dodaj drużynę",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp)
+                )
+                OutlinedTextField(
+                    value = teamName,
+                    onValueChange = { newteamName ->
+                        teamName = newteamName
+                    },
+                    label = { Text(text = "Nazwa drużyny", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = btnColor,
+                        unfocusedBorderColor = Gray,
+                    )
+
+                )
+                Button(
+                    onClick = {
+                        onSubmit(teamName.text)
+                        onDismiss()
+                    },
                     interactionSource = interactionSource,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)

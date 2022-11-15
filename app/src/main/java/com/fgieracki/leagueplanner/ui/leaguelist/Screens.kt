@@ -120,6 +120,7 @@ fun ScreenLeagueTeams(
     onNavigateToLeagueTeams: () -> Unit = {},
     onBackClick: () -> Unit
 ) {
+    val showDialog = remember { mutableStateOf(false) }
     val viewModel: TeamsAndMatchesViewModel = viewModel()
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
@@ -137,12 +138,17 @@ fun ScreenLeagueTeams(
                 onNavigateToLeagueMatches = onNavigateToLeagueMatches
             )
         },
-        content = { TeamList(teams, modifier = Modifier.padding(it)) },
+        content = { TeamList(teams, modifier = Modifier.padding(it))
+                  if(showDialog.value)
+                      AddTeamDialog(onDismiss = { showDialog.value = false })
+                  },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             if (userId == league.ownerId) FloatingActionButtonAdd(
                 contentDesc = "Dodaj Drużynę",
-                onClick = {})
+                onClick = {
+                    showDialog.value = true
+                })
         },
     )
 }

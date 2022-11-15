@@ -21,17 +21,6 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80,
     surface = Gray,
-//    onBackground = Color.Blue,
-//    onSurface = Color.Blue,
-//    background = Color.Blue,
-//    onPrimary = Color.Blue,
-//    onSecondary = Color.Blue,
-//    onTertiary = Color.Blue,
-//    error = Color.Blue,
-//    onError = Color.Blue,
-//    surfaceTint = Color.Blue,
-
-
 )
 
 private val LightColorScheme = lightColorScheme(
