@@ -9,10 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.*
 
-val userId: Int = 1
+const val userId: Int = 1
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,9 +38,9 @@ fun ScreenAllLeagues(
     onNavigateToMyLeagues: () -> Unit,
     onNavigateToAllLeagues: () -> Unit = {},
     onNavigateToLeagueTeams: (Int) -> Unit,
+    viewModel: LeagueListViewModel = viewModel(),
 ) {
-    val viewModel: LeagueListViewModel = viewModel()
-    val leagues = viewModel.leaguesState.collectAsState().value
+    val leagues = viewModel.leaguesState.collectAsState(initial = emptyList()).value
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = "Wszystkie Ligi", clickAction = {}) },
@@ -67,10 +68,11 @@ fun ScreenMyLeagues(
     onNavigateToMyLeagues: () -> Unit = {},
     onNavigateToAllLeagues: () -> Unit,
     onNavigateToLeagueTeams: (Int) -> Unit,
+    viewModel: LeagueListViewModel = viewModel()
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    val viewModel: LeagueListViewModel = viewModel()
-    val leagues = viewModel.leaguesState.collectAsState().value
+    val leagues = viewModel.leaguesState.collectAsState(initial = emptyList()).value
+
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = "Moje Ligi", clickAction = {}) },
@@ -86,7 +88,9 @@ fun ScreenMyLeagues(
                 onNavigateToLeague = { id -> onNavigateToLeagueTeams.invoke(id) })
             if(showDialog.value) {
                 AddLeagueDialog(onDismiss = { showDialog.value = false },
-                    onSubmit = {leagueName -> viewModel.addLeague(leagueName) })
+                    leagueName = viewModel.newLeagueName.collectAsState().value,
+                    onLeagueNameChange = { viewModel.onLeagueNameChanged(it) },
+                    onSubmit = {viewModel.addLeague() })
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -107,33 +111,34 @@ fun ScreenLeagueTeams(
     leagueId: Int, //TODO: change me
     onNavigateToLeagueMatches: () -> Unit,
     onNavigateToLeagueTeams: () -> Unit = {},
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TeamsAndMatchesViewModel = viewModel()
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    val viewModel: TeamsAndMatchesViewModel = viewModel()
+
+    val league = viewModel.leagueState.collectAsState( initial = League())
+    val teams = viewModel.teamsState.collectAsState( initial = emptyList())
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
 
-    val league = viewModel.leagueState.collectAsState().value
-    val teams = viewModel.teamsState.collectAsState().value
-
     Scaffold(
         containerColor = LightGray,
-        topBar = { TopBar(name = league.name, showBackButton = true, clickAction = onBackClick) },
+        topBar = { TopBar(name = league.value.name, showBackButton = true, clickAction = onBackClick) },
         bottomBar = {
             LeagueNavBar(
-                screen = 0, leagueId,
+                screen = 0,
+                leagueId = leagueId,
                 onNavigateToLeagueTeams = onNavigateToLeagueTeams,
                 onNavigateToLeagueMatches = onNavigateToLeagueMatches
             )
         },
-        content = { TeamList(teams, modifier = Modifier.padding(it))
+        content = { TeamList(teams.value, modifier = Modifier.padding(it))
                   if(showDialog.value)
                       AddTeamDialog(onDismiss = { showDialog.value = false })
                   },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            if (userId == league.ownerId) FloatingActionButtonAdd(
+            if (userId == league.value.ownerId) FloatingActionButtonAdd(
                 contentDesc = "Dodaj Drużynę",
                 onClick = {
                     showDialog.value = true
@@ -148,23 +153,25 @@ fun ScreenLeagueMatches(
     leagueId: Int,
     onNavigateToLeagueMatches: () -> Unit,
     onNavigateToLeagueTeams: () -> Unit = {},
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TeamsAndMatchesViewModel = viewModel()
 ) {
-    val viewModel: TeamsAndMatchesViewModel = viewModel()
+//    val viewModel: TeamsAndMatchesViewModel = viewModel()
     LaunchedEffect(leagueId) { viewModel.refreshMatches(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
 
-    val league = viewModel.leagueState.collectAsState().value
-    val teams = viewModel.teamsState.collectAsState().value
-    val matches = viewModel.matchesState.collectAsState().value
+    val league = viewModel.leagueState.collectAsState(initial = League()).value
+    val teams = viewModel.teamsState.collectAsState(initial = emptyList()).value
+    val matches = viewModel.matchesState.collectAsState(initial = emptyList()).value
 
     Scaffold(
         containerColor = LightGray,
         topBar = { TopBar(name = league.name, showBackButton = true, clickAction = onBackClick) },
         bottomBar = {
             LeagueNavBar(
-                screen = 1, leagueId,
+                screen = 1,
+                leagueId = leagueId,
                 onNavigateToLeagueTeams = onNavigateToLeagueTeams,
                 onNavigateToLeagueMatches = onNavigateToLeagueMatches
             )

@@ -244,8 +244,9 @@ fun MatchItem(match: MatchDisplay) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}) {
-    var leagueName by remember { mutableStateOf(TextFieldValue("")) }
+fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
+            leagueName: String, onLeagueNameChange: (String) -> Unit = {}) {
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
@@ -274,9 +275,7 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}
                 )
                 OutlinedTextField(
                     value = leagueName,
-                    onValueChange = { newLeagueName ->
-                        leagueName = newLeagueName
-                    },
+                    onValueChange = onLeagueNameChange,
                     label = { Text(text = "Nazwa ligi", color = Color.LightGray) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -289,7 +288,7 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}
                 )
                 Button(
                     onClick = {
-                        onSubmit(leagueName.text)
+                        onSubmit()
                         onDismiss()
                               },
                     interactionSource = interactionSource,

@@ -2,9 +2,10 @@ package com.fgieracki.leagueplanner.data.api.model
 
 import com.google.gson.annotations.SerializedName
 
-data class LeagueResponseDTO (@SerializedName("categories") val leagues: List<LeagueResponse>)
+data class LeagueResponseDTO (@SerializedName("results") val leagues: List<LeagueResponse>)
 
 data class LeagueResponse (
-    @SerializedName("strCategory") val name: String,
-    @SerializedName("idCategory") val leagueId: String,
+    @SerializedName("id") val leagueId: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("owner") val ownerId: Int
 )

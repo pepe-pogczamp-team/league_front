@@ -2,6 +2,7 @@ package com.fgieracki.leagueplanner.data.mappers
 
 import com.fgieracki.leagueplanner.data.api.model.LeagueResponse
 import com.fgieracki.leagueplanner.data.api.model.LeagueResponseDTO
+import com.fgieracki.leagueplanner.data.api.model.TeamResponse
 import com.fgieracki.leagueplanner.data.api.model.TeamResponseDTO
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
@@ -10,31 +11,31 @@ import com.fgieracki.leagueplanner.data.model.Team
 
 fun LeagueResponseDTO.toLeagueList(): List<League> {
     return leagues.map {
-        League(
-            name = it.name,
-            leagueId = it.leagueId.toInt(),
-            ownerId = it.leagueId.toInt(),
-        )
+        it.toLeague()
     }
 }
 
 fun TeamResponseDTO.toTeamList(): List<Team> {
     return teams.map {
-        Team(
-            name = it.name,
-            teamId = it.teamId.toInt(),
-            leagueId = 1, //TODO: fix this
-            points = 0,
-            city = "Kraków", //TODO: fix this
-        )
+        it.toTeam()
     }
 }
 
 fun LeagueResponse.toLeague(): League {
     return League(
         name = name,
-        leagueId = leagueId.toInt(),
-        ownerId = leagueId.toInt(),
+        leagueId = leagueId,
+        ownerId = ownerId,
+    )
+}
+
+fun TeamResponse.toTeam(): Team {
+    return Team(
+        name = name,
+        teamId = teamId,
+        leagueId = leagueId,
+        points = 0,
+        city = city,
     )
 }
 

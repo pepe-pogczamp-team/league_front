@@ -2,115 +2,112 @@ package com.fgieracki.leagueplanner.data
 
 import android.util.Log
 import com.fgieracki.leagueplanner.data.api.LeagueWebService
+import com.fgieracki.leagueplanner.data.api.model.AddLeagueDTO
+import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
+import com.fgieracki.leagueplanner.data.local.*
 import com.fgieracki.leagueplanner.data.mappers.toLeague
 import com.fgieracki.leagueplanner.data.mappers.toLeagueList
+import com.fgieracki.leagueplanner.data.mappers.toTeam
 import com.fgieracki.leagueplanner.data.mappers.toTeamList
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.Team
 import kotlinx.coroutines.delay
-
-val leagues = mutableListOf<League>(
-    League("test 1",1, 1,),
-    League("test 2", 2, 2),
-    League("test 3", 3, 3),
-    League("test 4", 4, 4),
-    League("test 5", 5, 5),
-    League("test 6", 6, 6),
-    League("test 7", 7, 1),
-    League("test 8", 8, 8),
-    League("test 9", 9, 9),
-    League("test 10", 10, 10),
-    League("test 11", 11, 11),
-    League("test 12", 12, 12),
-    League("test 13", 13, 1),
-    League("test 14", 14, 14),
-    League("test 15", 15, 1),
-    League("test 16", 16, 16),
-    League("test 17", 17, 17),
-    League("test 18", 18, 18),
-    League("test 19", 19, 19),
-    League("test 20", 20, 20)
-)
-
-val teams = listOf<Team>(
-    Team("team 1", 1, 1, 12, "Kraków"),
-    Team("team 2", 2, 1, 12, "Gdańsk"),
-    Team("team 3", 3, 1, 43, "Warszawa"),
-    Team("team 4", 4, 2, 55, "Poznań"),
-    Team("team 5", 5, 2, 2, "Wrocław"),
-    Team("team 6", 6, 2, 1, "Łódź"),
-    Team("team 7", 7, 3, 44, "Kraków"),
-    Team("team 8", 8, 3, 77, "Gdańsk"),
-)
-
-val matches = listOf<Match>(
-    Match(0, 1, 1, 2, 10, 23, "2020-01-01"),
-    Match(1, 1, 3, 1, 10, 23, "2020-01-01"),
-    Match(2, 1, 2, 3, 14, 12, "2020-01-01"),
-    Match(3, 2, 4, 5, 10, 23, "2020-01-01"),
-    Match(4, 2, 6, 4, 10, 23, "2020-01-01"),
-    Match(5, 2, 5, 6, 14, 12, "2020-01-01"),
-    Match(6, 3, 7, 8, 10, 23, "2020-01-01"),
-)
-
-class Repository(private val api: LeagueWebService = LeagueWebService) {
-    suspend fun getLeagues(): List<League> {
-//        val response = api.getLeagues()
-//        Log.d("REPO_LEAGUES_RESP_CODE", response.code().toString())
-//        return if(response.isSuccessful)
-//            response.body()?.toLeagueList() ?: emptyList()
-////            leagues
-//        else
-//            emptyList<League>() //TODO: handle errors
+import kotlinx.coroutines.flow.*
 
 
-        return leagues.toList()
-    }
-
-    suspend fun getTeams(leagueId: Int): List<Team> {
-//        val response = api.getTeams()
-//        Log.d("REPO_TEAM_RESP_CODE", response.code().toString())
-//        return if(response.isSuccessful)
-////            response.body()?.toTeamList() ?: emptyList()
-//            teams.filter {
-//                it.leagueId == leagueId
-//            }
-//        else
-//            emptyList<Team>() //TODO: handle errors
+val token = "Token dd9e93fcef08ae54453bea555abb26740076778d"
+val userId = 1
 
 
-        return teams.filter {
-            it.leagueId == leagueId
-        }.sortedBy { it.points }.reversed()
-    }
+class Repository(private val api: LeagueWebService.LeaguePlannerApi = LeagueWebService.api,
+                 private val teamsCatcher: TeamsCatcher = InMemoryTeamsCatcher,
+                 private val matchesCatcher: MatchesCatcher = InMemoryMatchesCatcher,
+                 private val leaguesCatcher: LeaguesCatcher = InMemoryLeaguesCatcher
+) {
 
-    suspend fun getLeague(leagueId: Int): League {
-//        val response = api.getLeague(leagueId.toString())
-//        Log.d("REPO_LEAGUE_RESP_CODE", response.code().toString())
-//        return if(response.isSuccessful)
-//            response.body()?.toLeague() ?: League()
-////            leagues.first { it.leagueId == leagueId }
-//        else
-//            League() //TODO: handle errors
+    fun getLeagues(): Flow<List<League>> = flow<List<League>> {
+        if(leaguesCatcher.getLeagues().first().isNotEmpty()){
+            emit(leaguesCatcher.getLeagues().first())
+        }
 
-
-        return leagues.first { it.leagueId == leagueId }
-    }
-
-    suspend fun getMatches(leagueId: Int): List<Match> {
-        //TODO: to implement
-
-        return matches.filter {
-            it.leagueId == leagueId
+        val response = api.getLeagues(token)
+        if (response.isSuccessful) {
+            val leagues = response.body()?.toLeagueList()
+            leagues?.let {
+                leaguesCatcher.clearLeagues()
+                leaguesCatcher.addLeagues(it)
+                emitAll(leaguesCatcher.getLeagues())
+            }
+        } else{
+            emitAll(getLeagues())
         }
     }
 
-    fun addLeague(newLeagueName: String): Boolean{
-        val leagueId = leagues.size + 1
-        val newLeague = League(newLeagueName, leagueId, 1)
-        leagues.add(newLeague)
-        return true
+    fun getTeams(leagueId: Int): Flow<List<Team>> = flow<List<Team>> {
+        if(teamsCatcher.getTeams(leagueId).first().isNotEmpty()){
+            emit(teamsCatcher.getTeams(leagueId).first())
+        }
+
+        val response = api.getTeams(token, leagueId)
+        if (response.isSuccessful) {
+            val teams = response.body()?.toTeamList()
+            teams?.let {
+                teamsCatcher.clearTeams()
+                teamsCatcher.addTeams(it)
+                emitAll(teamsCatcher.getTeams(leagueId))
+            }
+        } else{
+            emitAll(getTeams(leagueId))
+        }
     }
 
+    fun getLeague(leagueId: Int): Flow<League> {
+            return leaguesCatcher.getLeague(leagueId)
+    }
+
+    fun getMatches(leagueId: Int): Flow<List<Match>> {
+        //TODO: to implement
+
+//        return matchesState.map {
+//            it.filter {
+//                it.leagueId == leagueId
+//            }
+//        }
+
+//        return matches.filter {
+//            it.leagueId == leagueId
+//        }
+        return matchesCatcher.getMatches(leagueId)
+    }
+
+    suspend fun addLeague(newLeagueName: String): Boolean{
+        val response = api.addLeague(token, AddLeagueDTO(name = newLeagueName))
+        if(response.isSuccessful){
+            val league = response.body()?.toLeague()
+            league?.let {
+                leaguesCatcher.addLeague(it)
+            }
+            return true
+        }
+        Log.d("REPO_ADD_LEAGUE_RESP_CODE", response.code().toString())
+        return response.isSuccessful
+    }
+
+    suspend fun addTeam(newTeam: AddTeamDTO): Boolean{
+        val response = api.addTeam(token, newTeam)
+        if(response.isSuccessful){
+            val team = response.body()?.toTeam()
+            team?.let {
+                teamsCatcher.addTeam(team)
+            }
+            return true
+        }
+        Log.d("REPO_ADD_TEAM_RESP_CODE", response.code().toString())
+        return response.isSuccessful
+    }
+//        val leagueId = leagues.size + 1
+//        val newLeague = League(newLeagueName, leagueId, 1)
+//        leagues.add(newLeague)
+//        return true
 }
