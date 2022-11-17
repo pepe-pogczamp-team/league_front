@@ -116,10 +116,10 @@ fun ScreenLeagueTeams(
 ) {
     val showDialog = remember { mutableStateOf(false) }
 
-    val league = viewModel.leagueState.collectAsState( initial = League())
-    val teams = viewModel.teamsState.collectAsState( initial = emptyList())
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
+    val league = viewModel.leagueState.collectAsState( initial = League())
+    val teams = viewModel.teamsState.collectAsState( initial = emptyList())
 
     Scaffold(
         containerColor = LightGray,

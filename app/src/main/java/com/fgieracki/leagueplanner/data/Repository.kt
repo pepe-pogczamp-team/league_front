@@ -16,7 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
 
-val token = "Token dd9e93fcef08ae54453bea555abb26740076778d"
+val token = "Token 3d3e0c9aea6bc496fa4430982022dd7b56a44a91"
 val userId = 1
 
 
