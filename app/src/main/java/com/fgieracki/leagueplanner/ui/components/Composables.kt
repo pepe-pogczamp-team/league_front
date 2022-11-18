@@ -307,11 +307,14 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
     )
 }
 
-@Preview
+//@Preview
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}) {
+fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
+                  teamName: String, onTeamNameChange: (String) -> Unit = {},
+                  teamCity: String, onTeamCityChange: (String) -> Unit = {} ) {
     var teamName by remember { mutableStateOf(TextFieldValue("")) }
+    var teamCity by remember { mutableStateOf(TextFieldValue("")) }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
@@ -351,11 +354,27 @@ fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: (String) -> Unit = {}) 
                         focusedBorderColor = btnColor,
                         unfocusedBorderColor = Gray,
                     )
+                )
+
+                OutlinedTextField(
+                    value = teamCity,
+                    onValueChange = { newteamCity ->
+                        teamCity = newteamCity
+                    },
+                    label = { Text(text = "Miasto", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = btnColor,
+                        unfocusedBorderColor = Gray,
+                    )
 
                 )
+
                 Button(
                     onClick = {
-                        onSubmit(teamName.text)
+                        onSubmit()
                         onDismiss()
                     },
                     interactionSource = interactionSource,

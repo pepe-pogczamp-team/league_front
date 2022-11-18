@@ -89,7 +89,7 @@ fun ScreenMyLeagues(
             if(showDialog.value) {
                 AddLeagueDialog(onDismiss = { showDialog.value = false },
                     leagueName = viewModel.newLeagueName.collectAsState().value,
-                    onLeagueNameChange = { viewModel.onLeagueNameChanged(it) },
+                    onLeagueNameChange = { viewModel.onLeagueNameChange(it) },
                     onSubmit = {viewModel.addLeague() })
             }
         },
@@ -134,7 +134,12 @@ fun ScreenLeagueTeams(
         },
         content = { TeamList(teams.value, modifier = Modifier.padding(it))
                   if(showDialog.value)
-                      AddTeamDialog(onDismiss = { showDialog.value = false })
+                      AddTeamDialog(onDismiss = { showDialog.value = false },
+                          teamName = viewModel.newTeamName.collectAsState().value,
+                          onTeamNameChange = { viewModel.onTeamNameChange(it) },
+                          teamCity = viewModel.newTeamCity.collectAsState().value,
+                          onTeamCityChange = { viewModel.onTeamCityChange(it)},
+                          onSubmit = {viewModel.addTeam() })
                   },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {

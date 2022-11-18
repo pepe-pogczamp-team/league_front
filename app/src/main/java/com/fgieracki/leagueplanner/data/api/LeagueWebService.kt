@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.data.api
 
+import android.util.Log
 import com.fgieracki.leagueplanner.data.api.model.*
 import com.fgieracki.leagueplanner.data.model.Team
 import retrofit2.Response
