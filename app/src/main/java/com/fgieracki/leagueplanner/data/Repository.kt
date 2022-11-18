@@ -91,10 +91,15 @@ class Repository(private val api: LeagueWebService.LeaguePlannerApi = LeagueWebS
             return true
         }
         Log.d("REPO_ADD_LEAGUE_RESP_CODE", response.code().toString())
+
         return response.isSuccessful
     }
 
     suspend fun addTeam(newTeam: AddTeamDTO): Boolean{
+        //log AddTeamDTO values
+        Log.d("REPO_ADD_TEAM", newTeam.toString())
+
+
         val response = api.addTeam(token, newTeam)
         if(response.isSuccessful){
             val team = response.body()?.toTeam()
@@ -106,8 +111,4 @@ class Repository(private val api: LeagueWebService.LeaguePlannerApi = LeagueWebS
         Log.d("REPO_ADD_TEAM_RESP_CODE", response.code().toString())
         return response.isSuccessful
     }
-//        val leagueId = leagues.size + 1
-//        val newLeague = League(newLeagueName, leagueId, 1)
-//        leagues.add(newLeague)
-//        return true
 }

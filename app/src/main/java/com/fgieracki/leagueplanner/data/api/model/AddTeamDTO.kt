@@ -1,7 +1,9 @@
 package com.fgieracki.leagueplanner.data.api.model
 
+import com.google.gson.annotations.SerializedName
+
 data class AddTeamDTO (
-    val league: Int,
-    val name: String,
-    val city: String,
+   @SerializedName("league") val league: Int,
+   @SerializedName("name") val name: String,
+   @SerializedName("city") val city: String,
 )

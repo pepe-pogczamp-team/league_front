@@ -53,8 +53,8 @@ class TeamsAndMatchesViewModel(private val repository: Repository = Repository()
             val leagueId = leagueState.first().leagueId
             repository.addTeam(
                 AddTeamDTO(
-                    name = newTeamName.first(),
-                    city = newTeamCity.first(),
+                    name = newTeamName.value,
+                    city = newTeamCity.value,
                     league = leagueId
                 )
             )

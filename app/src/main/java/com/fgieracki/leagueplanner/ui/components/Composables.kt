@@ -313,8 +313,6 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
 fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
                   teamName: String, onTeamNameChange: (String) -> Unit = {},
                   teamCity: String, onTeamCityChange: (String) -> Unit = {} ) {
-    var teamName by remember { mutableStateOf(TextFieldValue("")) }
-    var teamCity by remember { mutableStateOf(TextFieldValue("")) }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
@@ -343,9 +341,7 @@ fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
                 )
                 OutlinedTextField(
                     value = teamName,
-                    onValueChange = { newteamName ->
-                        teamName = newteamName
-                    },
+                    onValueChange = onTeamNameChange,
                     label = { Text(text = "Nazwa drużyny", color = Color.LightGray) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -358,9 +354,7 @@ fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
 
                 OutlinedTextField(
                     value = teamCity,
-                    onValueChange = { newteamCity ->
-                        teamCity = newteamCity
-                    },
+                    onValueChange = onTeamCityChange,
                     label = { Text(text = "Miasto", color = Color.LightGray) },
                     modifier = Modifier
                         .fillMaxWidth()
