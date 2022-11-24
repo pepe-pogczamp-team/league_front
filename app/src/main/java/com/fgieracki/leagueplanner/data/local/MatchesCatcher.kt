@@ -9,4 +9,6 @@ interface MatchesCatcher {
     fun deleteMatch(match: Match)
     fun updateMatch(match: Match)
     fun getMatch(matchId: Int): Flow<Match>
+    fun addMatches(matches: List<Match>)
+    fun clearMatches()
 }

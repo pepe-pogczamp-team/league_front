@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.data.local
 
+import android.util.Log
 import com.fgieracki.leagueplanner.data.model.Team
 import kotlinx.coroutines.flow.*
 
@@ -15,12 +16,13 @@ val ateams = listOf<Team>(
 )
 
 
-
 object InMemoryTeamsCatcher : TeamsCatcher {
-    private val teams = MutableStateFlow<List<Team>>(ateams)
+    private val teams = MutableStateFlow<List<Team>>(listOf())
 
     override fun getTeams(leagueId: Int): Flow<List<Team>> {
-        return teams.filter { it.isNotEmpty() }.map { it.filter { it.leagueId == leagueId } }
+        return teams.map {
+            it.filter { it.leagueId == leagueId }
+        }
     }
 
     override fun addTeam(team: Team) {

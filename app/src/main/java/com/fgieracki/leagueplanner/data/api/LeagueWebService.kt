@@ -21,20 +21,24 @@ object LeagueWebService {
     }
 
     interface LeaguePlannerApi {
-        @GET("leagues")
+        @GET("leagues/")
         suspend fun getLeagues(@Header("Authorization") token:String): Response<LeagueResponseDTO>
 
         @POST("leagues/")
         suspend fun addLeague(@Header("Authorization") token:String,
                               @Body leagueName: AddLeagueDTO): Response<LeagueResponse>
 
-        @GET("teams")
+        @GET("teams/")
         suspend fun getTeams(@Header("Authorization") token:String,
                              @Query("league") leagueId: Int): Response<TeamResponseDTO>
 
         @POST("teams/")
         suspend fun addTeam(@Header("Authorization") token:String,
                             @Body team: AddTeamDTO): Response<TeamResponse>
+
+        @GET("matches/")
+        suspend fun getMatches(@Header("Authorization") token:String,
+                               @Query("league") leagueId: Int): Response<MatchResponseDTO>
     }
 
 

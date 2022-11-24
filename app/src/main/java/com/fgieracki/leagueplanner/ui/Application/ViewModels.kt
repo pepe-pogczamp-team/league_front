@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.ui.Application
 
+import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -64,6 +65,7 @@ class TeamsAndMatchesViewModel(private val repository: Repository = Repository()
     }
 
     fun refreshTeams(leagueId: Int) {
+
         viewModelScope.launch(Dispatchers.IO) {
             teamsState = repository.getTeams(leagueId)
         }

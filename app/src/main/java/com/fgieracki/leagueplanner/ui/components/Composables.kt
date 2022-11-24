@@ -307,6 +307,68 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
     )
 }
 
+@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun TeamItemDialog(onDismiss: () -> Unit = {},
+//                   team: Team
+) {
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+        ),
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = LightGray, shape = RoundedCornerShape(8.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Szczegóły ligi",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp)
+                )
+                OutlinedTextField(
+                    value = "test",
+                    enabled = false,
+                    onValueChange = {},
+                    label = { Text(text = "Nazwa ligi", color = Color.White) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                        //TODO: change color
+
+                    )
+
+                )
+                Button(
+                    onClick = {
+                        onDismiss()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LeagueBlue,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = "Zamknij")
+                }
+            }
+        }
+    )
+}
+
+
 //@Preview
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable

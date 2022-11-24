@@ -1,9 +1,6 @@
 package com.fgieracki.leagueplanner.data.mappers
 
-import com.fgieracki.leagueplanner.data.api.model.LeagueResponse
-import com.fgieracki.leagueplanner.data.api.model.LeagueResponseDTO
-import com.fgieracki.leagueplanner.data.api.model.TeamResponse
-import com.fgieracki.leagueplanner.data.api.model.TeamResponseDTO
+import com.fgieracki.leagueplanner.data.api.model.*
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.MatchDisplay
@@ -18,6 +15,12 @@ fun LeagueResponseDTO.toLeagueList(): List<League> {
 fun TeamResponseDTO.toTeamList(): List<Team> {
     return teams.map {
         it.toTeam()
+    }
+}
+
+fun MatchResponseDTO.toMatchList(): List<Match> {
+    return matches.map {
+        it.toMatch()
     }
 }
 
@@ -36,6 +39,19 @@ fun TeamResponse.toTeam(): Team {
         leagueId = leagueId,
         points = 0,
         city = city,
+    )
+}
+
+fun MatchResponse.toMatch(): Match {
+    return Match(
+        matchId = matchId,
+        homeTeamId = homeTeamId,
+        awayTeamId = awayTeamId,
+        homeTeamScore = homeTeamScore,
+        awayTeamScore = awayTeamScore,
+        leagueId = leagueId,
+        matchDate = date,
+        matchLocation = address,
     )
 }
 
