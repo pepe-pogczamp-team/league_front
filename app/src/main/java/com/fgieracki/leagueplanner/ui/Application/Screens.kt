@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fgieracki.leagueplanner.data.model.League
+import com.fgieracki.leagueplanner.data.model.Team
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.*
 
@@ -112,9 +113,14 @@ fun ScreenLeagueTeams(
     onNavigateToLeagueMatches: () -> Unit,
     onNavigateToLeagueTeams: () -> Unit = {},
     onBackClick: () -> Unit,
+//    onTeamItemClick: (Team) -> Unit,
     viewModel: TeamsAndMatchesViewModel = viewModel()
 ) {
-    val showDialog = remember { mutableStateOf(false) }
+    val showAddTeamDialog = remember { mutableStateOf(false) }
+    val showTeamDetailsDialog = remember { mutableStateOf(false) }
+    val teamDetails = remember {
+        mutableStateOf(Team(name = "", teamId = -1, leagueId = -1, points = -1, city = ""))
+    }
 
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
@@ -132,21 +138,28 @@ fun ScreenLeagueTeams(
                 onNavigateToLeagueMatches = onNavigateToLeagueMatches
             )
         },
-        content = { TeamList(teams.value, modifier = Modifier.padding(it))
-                  if(showDialog.value)
-                      AddTeamDialog(onDismiss = { showDialog.value = false },
+        content = {
+            TeamList(teams.value, modifier = Modifier.padding(it), onItemClick = {
+                teamDetails.value = it
+                showTeamDetailsDialog.value = true }
+            )
+                  if(showAddTeamDialog.value)
+                      AddTeamDialog(onDismiss = { showAddTeamDialog.value = false },
                           teamName = viewModel.newTeamName.collectAsState().value,
                           onTeamNameChange = { viewModel.onTeamNameChange(it) },
                           teamCity = viewModel.newTeamCity.collectAsState().value,
                           onTeamCityChange = { viewModel.onTeamCityChange(it)},
                           onSubmit = {viewModel.addTeam() })
+                    else if(showTeamDetailsDialog.value){
+                        TeamDetailsDialog(onDismiss = { showTeamDetailsDialog.value = false }, team = teamDetails.value)
+                    }
                   },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             if (userId == league.value.ownerId) FloatingActionButtonAdd(
                 contentDesc = "Dodaj Drużynę",
                 onClick = {
-                    showDialog.value = true
+                    showAddTeamDialog.value = true
                 })
         },
     )

@@ -90,12 +90,14 @@ fun LeagueList(
 
 
 @Composable
-fun TeamList(teams: List<Team>, modifier: Modifier = Modifier) {
+fun TeamList(teams: List<Team>, modifier: Modifier = Modifier, onItemClick: (Team) -> Unit) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(teams.size) {
-            TeamItem(teams[it])
+        items(teams.size) { lazyScope ->
+            TeamItem(teams[lazyScope]) {
+                onItemClick(it)
+            }
         }
     }
 }
@@ -126,13 +128,14 @@ fun FloatingActionButtonAdd(
 
 
 @Composable
-fun TeamItem(team: Team) {
+fun TeamItem(team: Team, onItemClick: (Team) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .background(color = Gray, shape = RoundedCornerShape(8.dp))
             .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
+            .clickable { onItemClick(team) }
     ) {
         Row(
             modifier = Modifier
@@ -307,11 +310,11 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
     )
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun TeamItemDialog(onDismiss: () -> Unit = {},
-//                   team: Team
+fun TeamDetailsDialog(onDismiss: () -> Unit = {},
+                   team: Team
 ) {
     Dialog(
         onDismissRequest = { onDismiss() },
@@ -327,7 +330,7 @@ fun TeamItemDialog(onDismiss: () -> Unit = {},
                     .padding(16.dp),
             ) {
                 Text(
-                    text = "Szczegóły ligi",
+                    text = "Szczegóły drużyny",
                     color = Color.White,
                     fontSize = 24.sp,
                     modifier = Modifier
@@ -335,19 +338,34 @@ fun TeamItemDialog(onDismiss: () -> Unit = {},
                         .padding(16.dp)
                 )
                 OutlinedTextField(
-                    value = "test",
+                    value = team.name,
                     enabled = false,
                     onValueChange = {},
-                    label = { Text(text = "Nazwa ligi", color = Color.White) },
+                    label = { Text(text = "Nazwa drużyny", color = Color.White) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedBorderColor = Gray,
+                        disabledTextColor = Color.LightGray,
                         //TODO: change color
 
                     )
+                )
+                OutlinedTextField(
+                    value = team.city,
+                    enabled = false,
+                    onValueChange = {},
+                    label = { Text(text = "Miasto", color = Color.White) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                        disabledTextColor = Color.LightGray,
+                        //TODO: change color
 
+                    )
                 )
                 Button(
                     onClick = {
