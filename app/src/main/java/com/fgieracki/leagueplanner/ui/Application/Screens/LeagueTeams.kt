@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Team
-import com.fgieracki.leagueplanner.ui.Application.TeamsAndMatchesViewModel
+import com.fgieracki.leagueplanner.ui.Application.TeamsViewModel
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.LightGray
 
@@ -20,7 +20,7 @@ fun ScreenLeagueTeams(
     onNavigateToLeagueTeams: () -> Unit = {},
     onBackClick: () -> Unit,
 //    onTeamItemClick: (Team) -> Unit,
-    viewModel: TeamsAndMatchesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: TeamsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val showAddTeamDialog = remember { mutableStateOf(false) }
     val showTeamDetailsDialog = remember { mutableStateOf(false) }

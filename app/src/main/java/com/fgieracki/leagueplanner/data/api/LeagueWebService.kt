@@ -39,6 +39,10 @@ object LeagueWebService {
         @GET("matches/")
         suspend fun getMatches(@Header("Authorization") token:String,
                                @Query("league") leagueId: Int): Response<MatchResponseDTO>
+
+        @POST("matches/")
+        suspend fun addMatch(@Header ("Authorization") token: String,
+                             @Body newMatch: AddMatchDTO): Response<MatchResponse>
     }
 
 

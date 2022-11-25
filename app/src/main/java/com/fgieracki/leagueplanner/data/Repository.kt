@@ -3,6 +3,7 @@ package com.fgieracki.leagueplanner.data
 import android.util.Log
 import com.fgieracki.leagueplanner.data.api.LeagueWebService
 import com.fgieracki.leagueplanner.data.api.model.AddLeagueDTO
+import com.fgieracki.leagueplanner.data.api.model.AddMatchDTO
 import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
 import com.fgieracki.leagueplanner.data.local.*
 import com.fgieracki.leagueplanner.data.mappers.*
@@ -99,14 +100,14 @@ class Repository(
             }
             return true
         }
-        Log.d("REPO_ADD_LEAGUE_RESP_CODE", response.code().toString())
+//        Log.d("REPO_ADD_LEAGUE_RESP_CODE", response.code().toString())
 
         return response.isSuccessful
     }
 
     suspend fun addTeam(newTeam: AddTeamDTO): Boolean {
         //log AddTeamDTO values
-        Log.d("REPO_ADD_TEAM", newTeam.toString())
+//        Log.d("REPO_ADD_TEAM", newTeam.toString())
 
 
         val response = api.addTeam(token, newTeam)
@@ -117,7 +118,19 @@ class Repository(
             }
             return true
         }
-        Log.d("REPO_ADD_TEAM_RESP_CODE", response.code().toString())
+//        Log.d("REPO_ADD_TEAM_RESP_CODE", response.code().toString())
+        return response.isSuccessful
+    }
+
+    suspend fun addMatch(newMatch: AddMatchDTO): Boolean {
+        val response = api.addMatch(token, newMatch)
+        if(response.isSuccessful){
+            val match = response.body()?.toMatch()
+            match?.let {
+                matchesCatcher.addMatch(match)
+            }
+            return true;
+        }
         return response.isSuccessful
     }
 }
