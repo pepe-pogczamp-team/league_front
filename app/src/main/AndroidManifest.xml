@@ -16,7 +16,7 @@
         android:theme="@style/Theme.LeaguePlanner"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".ui.Application.MainActivity"
+            android:name=".ui.Application.Screens.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LeaguePlanner">

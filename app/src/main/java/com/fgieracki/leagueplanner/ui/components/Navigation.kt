@@ -8,10 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fgieracki.leagueplanner.R
-import com.fgieracki.leagueplanner.ui.Application.ScreenAllLeagues
-import com.fgieracki.leagueplanner.ui.Application.ScreenLeagueMatches
-import com.fgieracki.leagueplanner.ui.Application.ScreenLeagueTeams
-import com.fgieracki.leagueplanner.ui.Application.ScreenMyLeagues
+import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenAllLeagues
+import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenLeagueMatches
+import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenLeagueTeams
+import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenMyLeagues
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
 
 @Composable

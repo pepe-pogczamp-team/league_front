@@ -15,10 +15,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+const val globalUserId: Int = 1
+
 class LeagueListViewModel(private val repository: Repository = Repository()) : ViewModel() {
     val leaguesState: Flow<List<League>> = repository.getLeagues()
     val newLeagueName: MutableStateFlow<String> = MutableStateFlow("")
-
+    val userId = globalUserId
     fun onLeagueNameChange(newName: String) {
         newLeagueName.value = newName
     }
@@ -37,7 +39,7 @@ class TeamsAndMatchesViewModel(private val repository: Repository = Repository()
     var teamsState: Flow<List<Team>> = repository.getTeams(-1)
     var matchesState: Flow<List<Match>> = repository.getMatches(-1)
     var leagueState: Flow<League> = repository.getLeague(-1)
-
+    val userId = globalUserId
     val newTeamName: MutableStateFlow<String> = MutableStateFlow("")
     val newTeamCity: MutableStateFlow<String> = MutableStateFlow("")
 
