@@ -30,8 +30,15 @@ class Repository(
             emit(leaguesCatcher.getLeagues().first())
         }
 
-        val response = api.getLeagues(token)
-        if (response.isSuccessful) {
+        //TODO: add TRY CATCH
+        val response = try {
+            api.getLeagues(token)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+        if (response?.isSuccessful == true) {
             val leagues = response.body()?.toLeagueList()
             leagues?.let {
                 leaguesCatcher.clearLeagues()
@@ -91,21 +98,21 @@ class Repository(
         }
     }
 
-    suspend fun addLeague(newLeagueName: String): Boolean {
+    suspend fun addLeague(newLeagueName: String): String {
         val response = api.addLeague(token, AddLeagueDTO(name = newLeagueName))
         if (response.isSuccessful) {
             val league = response.body()?.toLeague()
             league?.let {
                 leaguesCatcher.addLeague(it)
             }
-            return true
+            return response.code().toString()
         }
 //        Log.d("REPO_ADD_LEAGUE_RESP_CODE", response.code().toString())
 
-        return response.isSuccessful
+        return response.code().toString()
     }
 
-    suspend fun addTeam(newTeam: AddTeamDTO): Boolean {
+    suspend fun addTeam(newTeam: AddTeamDTO): String {
         //log AddTeamDTO values
 //        Log.d("REPO_ADD_TEAM", newTeam.toString())
 
@@ -116,21 +123,21 @@ class Repository(
             team?.let {
                 teamsCatcher.addTeam(team)
             }
-            return true
+            return response.code().toString()
         }
 //        Log.d("REPO_ADD_TEAM_RESP_CODE", response.code().toString())
-        return response.isSuccessful
+        return response.code().toString()
     }
 
-    suspend fun addMatch(newMatch: AddMatchDTO): Boolean {
+    suspend fun addMatch(newMatch: AddMatchDTO): String {
         val response = api.addMatch(token, newMatch)
         if(response.isSuccessful){
             val match = response.body()?.toMatch()
             match?.let {
                 matchesCatcher.addMatch(match)
             }
-            return true;
+            return response.code().toString()
         }
-        return response.isSuccessful
+        return response.code().toString()
     }
 }

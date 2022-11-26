@@ -1,5 +1,7 @@
 package com.fgieracki.leagueplanner.ui.Application
 
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fgieracki.leagueplanner.data.Repository
@@ -10,6 +12,7 @@ import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.Team
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -17,33 +20,40 @@ import kotlinx.coroutines.launch
 const val globalUserId: Int = 1
 
 class LeagueListViewModel(private val repository: Repository = Repository()) : ViewModel() {
-    //TODO: handle not full form filled
     val leaguesState: Flow<List<League>> = repository.getLeagues()
     val newLeagueName: MutableStateFlow<String> = MutableStateFlow("")
+    val toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val userId = globalUserId
     fun onLeagueNameChange(newName: String) {
         newLeagueName.value = newName
     }
 
     fun addLeague(): Boolean {
-        if(newLeagueName.value == "") {return false}
+
+        if (newLeagueName.value == "") {
+            return false
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addLeague(newLeagueName.value)
+            val response: String = repository.addLeague(newLeagueName.value)
+            if (response == "201") toastChannel.emit("Dodano ligę!")
+            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!")
             newLeagueName.value = ""
         }
-        return true;
+        return true
     }
+
 }
 
 
 class TeamsViewModel(private val repository: Repository = Repository()) : ViewModel() {
     //TODO: handle not full form filled
     var teamsState: Flow<List<Team>> = repository.getTeams(-1)
-    var matchesState: Flow<List<Match>> = repository.getMatches(-1)
     var leagueState: Flow<League> = repository.getLeague(-1)
     val userId = globalUserId
     val newTeamName: MutableStateFlow<String> = MutableStateFlow("")
     val newTeamCity: MutableStateFlow<String> = MutableStateFlow("")
+    val toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
     fun onTeamNameChange(newName: String) {
         newTeamName.value = newName
@@ -53,19 +63,28 @@ class TeamsViewModel(private val repository: Repository = Repository()) : ViewMo
         newTeamCity.value = newCity
     }
 
-    fun addTeam() {
+    fun addTeam(): Boolean {
+        if (newTeamName.value == ""
+            || newTeamCity.value == ""
+        ) return false
+
         viewModelScope.launch(Dispatchers.IO) {
             val leagueId = leagueState.first().leagueId
-            repository.addTeam(
+            val response = repository.addTeam(
                 AddTeamDTO(
                     name = newTeamName.value,
                     city = newTeamCity.value,
                     league = leagueId
                 )
             )
+
+            if (response == "201") toastChannel.emit("Dodano drużynę!")
+            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!")
+
             newTeamName.value = ""
             newTeamCity.value = ""
         }
+        return true
     }
 
     fun refreshTeams(leagueId: Int) {
@@ -83,12 +102,6 @@ class TeamsViewModel(private val repository: Repository = Repository()) : ViewMo
             }
         }
     }
-
-    fun refreshMatches(leagueId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            matchesState = repository.getMatches(leagueId)
-        }
-    }
 }
 
 class MatchesViewModel(private val repository: Repository = Repository()) : ViewModel() {
@@ -99,29 +112,45 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
     val userId = globalUserId
 
     val newHost: MutableStateFlow<Team> = MutableStateFlow(
-        Team("", -1, -1, 0))
+        Team("", -1, -1, 0)
+    )
     val newGuest: MutableStateFlow<Team> = MutableStateFlow(
-        Team("", -1, -1, 0))
-    val newHostScore: MutableStateFlow<Int> = MutableStateFlow(0)
-    val newGuestScore: MutableStateFlow<Int> = MutableStateFlow(0)
+        Team("", -1, -1, 0)
+    )
+    val newHostScore: MutableStateFlow<String> = MutableStateFlow("")
+    val newGuestScore: MutableStateFlow<String> = MutableStateFlow("")
     val newAddress: MutableStateFlow<String> = MutableStateFlow("")
+    val toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
+
 
     //TODO: handle Datetime
 
-    fun onHostChange(newHost: Team) {
+    fun onHostChange(newHost: Team): Boolean {
+        if (newHost.teamId == newGuest.value.teamId) return false
         this.newHost.value = newHost
+        return true
     }
 
-    fun onGuestChange(newGuest: Team) {
+    fun onGuestChange(newGuest: Team): Boolean {
+        if (newGuest.teamId == newHost.value.teamId) return false
         this.newGuest.value = newGuest
+        return true
     }
 
-    fun onHostScoreChange(newHostScore: Int) {
-        this.newHostScore.value = newHostScore
+    fun onHostScoreChange(newHostScore: String): Boolean {
+        if (newHostScore == "" || newHostScore.toIntOrNull() != null) {
+            this.newHostScore.value = newHostScore
+            return true
+        }
+        return false
     }
 
-    fun onGuestScoreChange(newGuestScore: Int) {
-        this.newGuestScore.value = newGuestScore
+    fun onGuestScoreChange(newGuestScore: String): Boolean {
+        if (newGuestScore == "" || newGuestScore.toIntOrNull() != null) {
+            this.newGuestScore.value = newGuestScore
+            return true
+        }
+        return false
     }
 
     fun onLocationChange(newLocation: String) {
@@ -144,31 +173,41 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
         }
     }
 
-    fun addMatch() {
-        //TODO: handle not full form filled
+    fun clearForm() {
+        newHost.value = Team("", -1, -1, 0)
+        newGuest.value = Team("", -1, -1, 0)
+        newHostScore.value = ""
+        newGuestScore.value = ""
+        newAddress.value = ""
+    }
 
+    fun addMatch(): Boolean {
+        //TODO: handle not full form filled
+        if (newHost.value.teamId == -1
+            || newGuest.value.teamId == -1
+            || newHostScore.value == ""
+            || newGuestScore.value == ""
+            || newAddress.value == ""
+        ) return false
         viewModelScope.launch(Dispatchers.IO) {
             val leagueId = leagueState.first().leagueId
-            repository.addMatch(
+            val response = repository.addMatch( //TODO: make method to verify data
                 AddMatchDTO(
                     league = leagueId,
                     homeTeamId = newHost.value.teamId,
-                    homeTeamScore = newHostScore.value,
+                    homeTeamScore = newHostScore.value.toIntOrNull() ?: 0,
                     awayTeamId = newGuest.value.teamId,
-                    awayTeamScore = newGuestScore.value,
-                    date = "", //TODO: FIX ME!
+                    awayTeamScore = newGuestScore.value.toIntOrNull() ?: 0,
+                    date = "2022-11-15T13:45:00", //TODO: FIX ME!
                     location = newAddress.value,
                     city = newHost.value.city
                 )
             )
-            newAddress.value = ""
-            newAddress.value = ""
-            newHostScore.value = 0
-            newGuestScore.value = 0
-            newHost.value = Team("", -1, -1, 0)
-            newGuest.value = Team("", -1, -1, 0)
-            //TODO: clear the date
+            if (response == "201") toastChannel.emit("Dodano mecz!")
+            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!")
+            clearForm()
         }
+        return true
     }
 
     fun refreshMatches(leagueId: Int) {

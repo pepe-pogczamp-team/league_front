@@ -1,15 +1,18 @@
 package com.fgieracki.leagueplanner.ui.Application.Screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.ui.Application.MatchesViewModel
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.LightGray
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +33,16 @@ fun ScreenLeagueMatches(
     val teams = viewModel.teamsState.collectAsState(initial = emptyList()).value
     val matches = viewModel.matchesState.collectAsState(initial = emptyList()).value
     val userId = viewModel.userId
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.toastChannel.collectLatest {
+            Toast.makeText(
+                context, it,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     Scaffold(
         containerColor = LightGray,
@@ -45,20 +58,56 @@ fun ScreenLeagueMatches(
         content = {
             MatchList(matches, teams, modifier = Modifier.padding(it))
 
-            if(showAddMatchDialog.value) {
+            if (showAddMatchDialog.value) {
                 AddMatchDialog(
-                //TODO: EDIT ME
+                    //TODO: EDIT ME
                     teams = teams,
-                    onDismiss = { showAddMatchDialog.value = false },
-                    onSubmit = { viewModel.addMatch() },
+                    onDismiss = {
+                        showAddMatchDialog.value = false
+                        viewModel.clearForm()
+                    },
+                    onSubmit = {
+                        if (!viewModel.addMatch())
+                            Toast.makeText(
+                                context, "Wypełnij wszystkie pola oznaczone '*'!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        else showAddMatchDialog.value = false
+                    },
                     host = viewModel.newHost.collectAsState().value,
-                    onHostChange = { viewModel.onHostChange(it) },
-                    Guest = viewModel.newGuest.collectAsState().value,
-                    onGuestChange = { viewModel.onGuestChange(it) },
+                    onHostChange = {
+                        if (!viewModel.onHostChange(it))
+                            Toast.makeText(
+                                context,
+                                "Drużyna Gospodarzy musi być inna niż drużyna gości!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
+                    guest = viewModel.newGuest.collectAsState().value,
+                    onGuestChange = {
+                        if (!viewModel.onGuestChange(it))
+                            Toast.makeText(
+                                context,
+                                "Drużyna Gospodarzy musi być inna niż drużyna gości!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
                     hostScore = viewModel.newHostScore.collectAsState().value,
-                    onHostScoreChange = { viewModel.onHostScoreChange(it) },
-                    GuestScore = viewModel.newGuestScore.collectAsState().value,
-                    onGuestScoreChange = { viewModel.onGuestScoreChange(it)},
+                    onHostScoreChange = {
+                        if (!viewModel.onHostScoreChange(it))
+                            Toast.makeText(
+                                context, "Wynik musi być liczbą",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
+                    guestScore = viewModel.newGuestScore.collectAsState().value,
+                    onGuestScoreChange = {
+                        if (!viewModel.onGuestScoreChange(it))
+                            Toast.makeText(
+                                context, "Wynik musi być liczbą",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
                     //TODO: ADD DATE!
                     location = viewModel.newAddress.collectAsState().value,
                     onLocationChange = { viewModel.onLocationChange(it) }

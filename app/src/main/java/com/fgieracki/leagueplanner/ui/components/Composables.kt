@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Edit
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -211,7 +213,8 @@ fun MatchItem(match: MatchDisplay) {
     Log.d("MatchItem", match.toString())
     val team1 = match.homeTeamName
     val team2 = match.awayTeamName
-    val scores = if(match.homeTeamScore == null && match.awayTeamScore == null) "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
+    val scores =
+        if (match.homeTeamScore == null && match.awayTeamScore == null) "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
 
     Box(
         modifier = Modifier
@@ -254,13 +257,16 @@ fun MatchItem(match: MatchDisplay) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Boolean,
-            leagueName: String, onLeagueNameChange: (String) -> Unit = {}) {
+fun AddLeagueDialog(
+    onDismiss: () -> Unit = {}, onSubmit: () -> Boolean,
+    leagueName: String, onLeagueNameChange: (String) -> Unit = {}
+) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
     val context = LocalContext.current
+
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(
@@ -294,17 +300,17 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Boolean,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = btnColor,
                         unfocusedBorderColor = Gray,
-                    )
-
+                    ),
                 )
                 Button(
                     onClick = {
-                        if(onSubmit())
+                        if (onSubmit())
                             onDismiss()
-                        else{
-                            Toast.makeText(context,
-                                "Wypełnij wszystkie pola!",
-                                Toast.LENGTH_LONG).show()
+                        else {
+                            Toast.makeText(
+                                context, "Nazwa ligi nie może być pusta",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     },
                     interactionSource = interactionSource,
@@ -326,8 +332,9 @@ fun AddLeagueDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Boolean,
 //@Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun TeamDetailsDialog(onDismiss: () -> Unit = {},
-                   team: Team
+fun TeamDetailsDialog(
+    onDismiss: () -> Unit = {},
+    team: Team
 ) {
     Dialog(
         onDismissRequest = { onDismiss() },
@@ -403,12 +410,15 @@ fun TeamDetailsDialog(onDismiss: () -> Unit = {},
 //@Preview
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
-                  teamName: String, onTeamNameChange: (String) -> Unit = {},
-                  teamCity: String, onTeamCityChange: (String) -> Unit = {} ) {
+fun AddTeamDialog(
+    onDismiss: () -> Unit = {}, onSubmit: () -> Boolean,
+    teamName: String, onTeamNameChange: (String) -> Unit = {},
+    teamCity: String, onTeamCityChange: (String) -> Unit = {}
+) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
+    val context = LocalContext.current
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(
@@ -461,8 +471,14 @@ fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
 
                 Button(
                     onClick = {
-                        onSubmit()
-                        onDismiss() //TODO: REMOVE ME
+                        if (onSubmit())
+                            onDismiss()
+                        else {
+                            Toast.makeText(
+                                context, "Wypełnij wszystkie pola!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     },
                     interactionSource = interactionSource,
                     modifier = Modifier
@@ -486,11 +502,11 @@ fun AddTeamDialog(onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
 @Composable
 fun AddMatchDialog(
     teams: List<Team>,
-    onDismiss: () -> Unit = {},  onSubmit: () -> Unit = {},
+    onDismiss: () -> Unit = {}, onSubmit: () -> Unit = {},
     host: Team, onHostChange: (Team) -> Unit = {},
-    Guest: Team, onGuestChange: (Team) -> Unit = {},
-    hostScore: Int, onHostScoreChange: (Int) -> Unit = {},
-    GuestScore: Int, onGuestScoreChange: (Int) -> Unit = {},
+    guest: Team, onGuestChange: (Team) -> Unit = {},
+    hostScore: String, onHostScoreChange: (String) -> Unit = {},
+    guestScore: String, onGuestScoreChange: (String) -> Unit = {},
 //    date: String, onDateChange: (String) -> Unit = {},
     location: String, onLocationChange: (String) -> Unit = {},
 ) {
@@ -498,6 +514,7 @@ fun AddMatchDialog(
     val isPressed = interactionSource.collectIsPressedAsState().value
     val btnColor = if (isPressed) Color.Green else LeagueBlue
     var hostExpanded by remember { mutableStateOf(false) }
+    var guestExpanded by remember { mutableStateOf(false) }
 
 
     Dialog(
@@ -506,7 +523,7 @@ fun AddMatchDialog(
             dismissOnBackPress = true,
             dismissOnClickOutside = true,
             usePlatformDefaultWidth = true,
-//            decorFitsSystemWindows = true,
+            decorFitsSystemWindows = true,
         ),
         content = {
             Column(
@@ -523,16 +540,15 @@ fun AddMatchDialog(
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp)
                 )
+
                 OutlinedTextField(
                     value = host.name,
                     onValueChange = {},
-                    label = { Text(text = "Gospodarz", color = Color.LightGray) },
+                    label = { Text(text = "Gospodarz*", color = Color.LightGray) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                        .clickable { //TODO: repair me :<
-                            hostExpanded = !hostExpanded
-                                   },
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { hostExpanded = !hostExpanded },
                     enabled = false,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = btnColor,
@@ -546,32 +562,150 @@ fun AddMatchDialog(
                     onDismissRequest = { hostExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
                     teams.forEach { team ->
                         DropdownMenuItem(onClick = {
                             onHostChange(team)
                             hostExpanded = false
                         },
-                        text = { Text(text = team.name) })
+                            text = { Text(text = team.name) })
                     }
                 }
 
-                Button(
-                    onClick = {
-                        onSubmit()
-                    },
-                    interactionSource = interactionSource,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = btnColor,
-                        contentColor = Color.White
+                Row {
+                    OutlinedTextField(
+                        value = hostScore,
+                        onValueChange = onHostScoreChange,
+                        label = { Text(text = "Gospodarze", color = Color.LightGray,
+                            fontSize = 10.sp) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = btnColor,
+                            unfocusedBorderColor = Gray,
+                            disabledBorderColor = btnColor,
+                            disabledTextColor = Color.White
+                        ),
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
                     )
-                ) {
-                    Text(text = "Dodaj")
+                    Text(
+                        text = ":",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+
+                    OutlinedTextField(
+                        value = guestScore,
+                        onValueChange = onGuestScoreChange,
+                        label = { Text(text = "Goście", color = Color.LightGray,
+                            fontSize = 10.sp) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = btnColor,
+                            unfocusedBorderColor = Gray,
+                            disabledBorderColor = btnColor,
+                            disabledTextColor = Color.White
+                        ),
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                    )
                 }
+
+                OutlinedTextField(
+                    value = guest.name,
+                    onValueChange = {},
+                    label = { Text(text = "Gość*", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { guestExpanded = !guestExpanded },
+                    enabled = false,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = btnColor,
+                        unfocusedBorderColor = Gray,
+                        disabledBorderColor = btnColor,
+                        disabledTextColor = Color.White
+                    )
+                )
+                DropdownMenu(
+                    expanded = guestExpanded,
+                    onDismissRequest = { guestExpanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    teams.forEach { team ->
+                        DropdownMenuItem(onClick = {
+                            onGuestChange(team)
+                            guestExpanded = false
+                        },
+                            text = { Text(text = team.name) })
+                    }
+                }
+
+                OutlinedTextField(
+                    value = location,
+                    onValueChange = onLocationChange,
+                    label = { Text(text = "Lokalizacja", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                        focusedBorderColor = LeagueBlue,
+                    )
+                )
+                Row(modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(
+                        onClick = {
+                            onDismiss()
+                        },
+                        modifier = Modifier
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Anuluj")
+                    }
+                    Button(
+                        onClick = {
+                            onSubmit()
+                        },
+                        interactionSource = interactionSource,
+                        modifier = Modifier
+//                            .align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = btnColor,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Dodaj")
+                    }
+                }
+
             }
         }
     )
