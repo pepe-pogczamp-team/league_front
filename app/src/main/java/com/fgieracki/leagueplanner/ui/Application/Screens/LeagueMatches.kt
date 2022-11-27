@@ -24,7 +24,6 @@ fun ScreenLeagueMatches(
     viewModel: MatchesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val showAddMatchDialog = remember { mutableStateOf(false) }
-//    val viewModel: TeamsAndMatchesViewModel = viewModel()
     LaunchedEffect(leagueId) { viewModel.refreshMatches(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
@@ -69,7 +68,7 @@ fun ScreenLeagueMatches(
                     onSubmit = {
                         if (!viewModel.addMatch())
                             Toast.makeText(
-                                context, "Wypełnij wszystkie pola oznaczone '*'!",
+                                context, "Wypełnij wszystkie pola!",
                                 Toast.LENGTH_LONG
                             ).show()
                         else showAddMatchDialog.value = false
@@ -108,9 +107,12 @@ fun ScreenLeagueMatches(
                                 Toast.LENGTH_LONG
                             ).show()
                     },
-                    //TODO: ADD DATE!
                     location = viewModel.newAddress.collectAsState().value,
-                    onLocationChange = { viewModel.onLocationChange(it) }
+                    onLocationChange = { viewModel.onLocationChange(it) },
+                    date = viewModel.newDate.collectAsState().value,
+                    onDateChange = { viewModel.onDateChange(it) },
+                    time = viewModel.newTime.collectAsState().value,
+                    onTimeChange = { viewModel.onTimeChange(it) },
                 )
             }
 

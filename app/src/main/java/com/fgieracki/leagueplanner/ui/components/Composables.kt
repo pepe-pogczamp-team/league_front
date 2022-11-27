@@ -1,6 +1,7 @@
 package com.fgieracki.leagueplanner.ui.components
 
 import android.util.Log
+import android.widget.Space
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -201,9 +202,11 @@ fun LeagueItem(league: League, clickAction: () -> Unit) {
 
 @Composable
 fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        matches.forEach { match ->
-            MatchItem(mapMatchAndTeamToMatchDisplay(match, teams))
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(matches.size){ matchId ->
+            MatchItem(mapMatchAndTeamToMatchDisplay(matches[matchId], teams));
         }
     }
 }
@@ -507,7 +510,8 @@ fun AddMatchDialog(
     guest: Team, onGuestChange: (Team) -> Unit = {},
     hostScore: String, onHostScoreChange: (String) -> Unit = {},
     guestScore: String, onGuestScoreChange: (String) -> Unit = {},
-//    date: String, onDateChange: (String) -> Unit = {},
+    date: String, onDateChange: (String) -> Unit = {},
+    time: String, onTimeChange: (String) -> Unit = {},
     location: String, onLocationChange: (String) -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -577,8 +581,13 @@ fun AddMatchDialog(
                     OutlinedTextField(
                         value = hostScore,
                         onValueChange = onHostScoreChange,
-                        label = { Text(text = "Gospodarze", color = Color.LightGray,
-                            fontSize = 10.sp) },
+                        singleLine = true,
+                        label = {
+                            Text(
+                                text = "Gospodarze", color = Color.LightGray,
+                                fontSize = 10.sp
+                            )
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -607,13 +616,18 @@ fun AddMatchDialog(
                     OutlinedTextField(
                         value = guestScore,
                         onValueChange = onGuestScoreChange,
-                        label = { Text(text = "Goście", color = Color.LightGray,
-                            fontSize = 10.sp) },
+                        singleLine = true,
+                        label = {
+                            Text(
+                                text = "Goście", color = Color.LightGray,
+                                fontSize = 10.sp
+                            )
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number
+                            keyboardType = KeyboardType.Decimal
                         ),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = btnColor,
@@ -662,6 +676,7 @@ fun AddMatchDialog(
                 OutlinedTextField(
                     value = location,
                     onValueChange = onLocationChange,
+                    singleLine = true,
                     label = { Text(text = "Lokalizacja", color = Color.LightGray) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -671,11 +686,54 @@ fun AddMatchDialog(
                         focusedBorderColor = LeagueBlue,
                     )
                 )
-                Row(modifier =
+
+                Row(
+                    modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    OutlinedTextField(
+                        value = date,
+                        onValueChange = {},
+                        enabled = false,
+                        label = { Text(text = "Data", color = Color.LightGray) },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            focusedBorderColor = LeagueBlue,
+                        ),
+                        modifier = Modifier
+                            .weight(2f)
+                            .clickable { }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = time,
+                        onValueChange = {},
+                        enabled = false,
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        label = { Text(text = "Czas", color = Color.LightGray) },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            focusedBorderColor = LeagueBlue,
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { }
+                    )
+                }
+
+
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Button(
                         onClick = {
                             onDismiss()
