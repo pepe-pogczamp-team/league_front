@@ -1,8 +1,8 @@
 package com.fgieracki.leagueplanner.ui.components
 
 import android.util.Log
-import android.widget.Space
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,11 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -44,7 +38,17 @@ import com.fgieracki.leagueplanner.ui.theme.DarkGray
 import com.fgieracki.leagueplanner.ui.theme.Gray
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
 import com.fgieracki.leagueplanner.ui.theme.LightGray
-import kotlin.coroutines.coroutineContext
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.DatePickerColors
+import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -510,8 +514,8 @@ fun AddMatchDialog(
     guest: Team, onGuestChange: (Team) -> Unit = {},
     hostScore: String, onHostScoreChange: (String) -> Unit = {},
     guestScore: String, onGuestScoreChange: (String) -> Unit = {},
-    date: String, onDateChange: (String) -> Unit = {},
-    time: String, onTimeChange: (String) -> Unit = {},
+    date: LocalDate, onDateChange: (LocalDate) -> Unit = {},
+    time: LocalTime, onTimeChange: (LocalTime) -> Unit = {},
     location: String, onLocationChange: (String) -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -519,6 +523,8 @@ fun AddMatchDialog(
     val btnColor = if (isPressed) Color.Green else LeagueBlue
     var hostExpanded by remember { mutableStateOf(false) }
     var guestExpanded by remember { mutableStateOf(false) }
+    val dateExpandedState = rememberMaterialDialogState()
+    val timeExpandedState = rememberMaterialDialogState()
 
 
     Dialog(
@@ -695,9 +701,10 @@ fun AddMatchDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     OutlinedTextField(
-                        value = date,
+                        value = "${date.dayOfMonth}/${date.monthValue}/${date.year}",
                         onValueChange = {},
                         enabled = false,
+//                        readOnly = true,
                         label = { Text(text = "Data", color = Color.LightGray) },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             unfocusedBorderColor = Gray,
@@ -705,11 +712,13 @@ fun AddMatchDialog(
                         ),
                         modifier = Modifier
                             .weight(2f)
-                            .clickable { }
+                            .clickable {
+                                dateExpandedState.show()
+                            }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = time,
+                        value = time.format(DateTimeFormatter.ofPattern("HH:mm")),
                         onValueChange = {},
                         enabled = false,
                         textStyle = LocalTextStyle.current.copy(
@@ -722,7 +731,72 @@ fun AddMatchDialog(
                         ),
                         modifier = Modifier
                             .weight(1f)
-                            .clickable { }
+                            .clickable {
+                                timeExpandedState.show()
+                            }
+                    )
+                }
+
+                MaterialDialog( //date picker dialog
+                    dialogState = dateExpandedState,
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, LeagueBlue),
+                    backgroundColor = Color.LightGray,
+                    buttons = {
+                        positiveButton(text = "Ok"){
+                            onDateChange
+                        }
+                        negativeButton(text = "Anuluj")
+
+                    }
+                ) {
+                    datepicker(
+                        initialDate = date,
+                        onDateChange = onDateChange,
+                        title = "Wybierz datę",
+                        locale = Locale("pl", "PL"),
+                        waitForPositiveButton = false,
+                        colors = DatePickerDefaults.colors(
+                            headerBackgroundColor = LeagueBlue,
+                            headerTextColor = Color.White,
+                            dateActiveBackgroundColor = LeagueBlue,
+                        )
+                    )
+                }
+
+                MaterialDialog( //time picker dialog
+                    dialogState = timeExpandedState,
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, LeagueBlue),
+                    backgroundColor = Color.LightGray,
+                    buttons = {
+                        positiveButton(text = "Ok"){
+                            onDateChange
+                        }
+                        negativeButton(text = "Anuluj")
+
+                    }
+                ) {
+                    timepicker(
+                        initialTime = time,
+                        onTimeChange = onTimeChange,
+                        title = "Wybierz czas",
+                        waitForPositiveButton = false,
+                        is24HourClock = true,
+                        colors = TimePickerDefaults.colors(
+                            selectorColor = LeagueBlue,
+                            selectorTextColor = Color.White,
+                            headerTextColor = Color.White,
+                            activeBackgroundColor = LeagueBlue,
+                        )
                     )
                 }
 

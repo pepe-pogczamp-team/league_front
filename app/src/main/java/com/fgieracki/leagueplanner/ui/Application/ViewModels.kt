@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.ui.Application
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 const val globalUserId: Int = 1
 
@@ -120,8 +124,8 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
     val newHostScore: MutableStateFlow<String> = MutableStateFlow("")
     val newGuestScore: MutableStateFlow<String> = MutableStateFlow("")
     val newAddress: MutableStateFlow<String> = MutableStateFlow("")
-    val newDate: MutableStateFlow<String> = MutableStateFlow("")
-    val newTime: MutableStateFlow<String> = MutableStateFlow("")
+    val newDate: MutableStateFlow<LocalDate> = MutableStateFlow(LocalDate.now())
+    val newTime: MutableStateFlow<LocalTime> = MutableStateFlow(LocalTime.now())
 
     val toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
@@ -159,12 +163,13 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
         this.newAddress.value = newLocation
     }
 
-    fun onDateChange(newDate: String) {
+    fun onDateChange(newDate: LocalDate) {
         this.newDate.value = newDate
     }
 
-    fun onTimeChange(newTime: String) {
+    fun onTimeChange(newTime: LocalTime) {
         this.newTime.value = newTime
+        Log.d("datetime", newDate.toString() + "T" + DateTimeFormatter.ofPattern("hh:mm").format(this.newTime.value))
     }
 
     fun refreshTeams(leagueId: Int) {
@@ -192,21 +197,23 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
     }
 
     fun addMatch(): Boolean {
-        //TODO: handle not full form filled
         if (newHost.value.teamId == -1
             || newGuest.value.teamId == -1
             || newAddress.value == ""
         ) return false
+        val tmpDate = (newDate.value.toString()
+                + "T" + newTime.value.format(DateTimeFormatter.ofPattern("hh:mm")))
         viewModelScope.launch() {
             val leagueId = leagueState.first().leagueId
-            val response = repository.addMatch( //TODO: make method to verify data
+            val response = repository.addMatch(
+
                 AddMatchDTO(
                     league = leagueId,
                     homeTeamId = newHost.value.teamId,
                     homeTeamScore = newHostScore.value.toIntOrNull() ?: 0,
                     awayTeamId = newGuest.value.teamId,
                     awayTeamScore = newGuestScore.value.toIntOrNull() ?: 0,
-                    date = "2022-11-15T13:45:00", //TODO: FIX ME!
+                    date = tmpDate, //TODO: FIX ME!
                     location = newAddress.value,
                     city = newHost.value.city
                 )
