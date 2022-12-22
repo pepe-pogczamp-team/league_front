@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.ui.Application
 
+import android.telecom.Call.Details
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
@@ -8,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.fgieracki.leagueplanner.data.Repository
 import com.fgieracki.leagueplanner.data.api.model.AddMatchDTO
 import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
+import com.fgieracki.leagueplanner.data.api.model.UpdateMatchDTO
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
+import com.fgieracki.leagueplanner.data.model.MatchDisplay
 import com.fgieracki.leagueplanner.data.model.Team
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -129,7 +132,21 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
 
     val toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
+
+
     //TODO: handle Datetime
+    fun updateMatch(matchDetails: MatchDisplay){
+        viewModelScope.launch() {
+            val data = UpdateMatchDTO(
+                newHostScore.value.toInt(),
+                newGuestScore.value.toInt(),
+            )
+            val response = repository.updateMatch(matchDetails.matchId, data)
+            clearForm()
+            if (response == "200") toastChannel.emit("Zaktualizowano mecz!")
+            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!") //TODO: DTO for match
+        }
+    }
 
     fun onHostChange(newHost: Team): Boolean {
         if (newHost.teamId == newGuest.value.teamId) return false

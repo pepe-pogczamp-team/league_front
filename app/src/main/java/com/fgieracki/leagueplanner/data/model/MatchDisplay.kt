@@ -8,6 +8,7 @@ data class MatchDisplay(
     val homeTeamScore: Int?,
     val awayTeamScore: Int?,
     val matchDate: String,
+    val matchLocation: String?,
     val homeTeamName: String,
     val awayTeamName: String,
     val homeTeamCity: String,

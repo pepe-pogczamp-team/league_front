@@ -1,5 +1,6 @@
 package com.fgieracki.leagueplanner.ui.components
 
+import android.text.Editable
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -205,23 +206,24 @@ fun LeagueItem(league: League, clickAction: () -> Unit) {
 
 
 @Composable
-fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier) {
+fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modifier, onItemClick: (MatchDisplay) -> Unit) {
     LazyColumn(
         modifier = modifier
     ) {
         items(matches.size){ matchId ->
-            MatchItem(mapMatchAndTeamToMatchDisplay(matches[matchId], teams));
+            MatchItem(mapMatchAndTeamToMatchDisplay(matches[matchId], teams), onItemClick)
         }
     }
 }
 
 @Composable
-fun MatchItem(match: MatchDisplay) {
+fun MatchItem(match: MatchDisplay, onItemClick: (MatchDisplay) -> Unit) {
     Log.d("MatchItem", match.toString())
     val team1 = match.homeTeamName
     val team2 = match.awayTeamName
     val scores =
-        if (match.homeTeamScore == null && match.awayTeamScore == null) "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
+        if (match.homeTeamScore == null && match.awayTeamScore == null)
+            "? - ?" else "${match.homeTeamScore} - ${match.awayTeamScore}"
 
     Box(
         modifier = Modifier
@@ -229,6 +231,7 @@ fun MatchItem(match: MatchDisplay) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .background(color = Gray, shape = RoundedCornerShape(8.dp))
             .border(1.dp, color = LeagueBlue, shape = RoundedCornerShape(8.dp))
+            .clickable { onItemClick(match) }
     ) {
         Column(
             modifier = Modifier
@@ -839,6 +842,234 @@ fun AddMatchDialog(
                         )
                     ) {
                         Text(text = "Dodaj")
+                    }
+                }
+
+            }
+        }
+    )
+
+
+}
+
+
+//@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun MatchDetailsDialog(
+    matchDisplay: MatchDisplay,
+    onDismiss: () -> Unit,
+    editable: Boolean = false,
+    onSave: () -> Unit,
+    hostScore: String, onHostScoreChange: (String) -> Unit,
+    guestScore: String, onGuestScoreChange: (String) -> Unit,
+) {
+
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = true,
+            decorFitsSystemWindows = true,
+        ),
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = LightGray, shape = RoundedCornerShape(8.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Dodaj Mecz",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp)
+                )
+
+                OutlinedTextField(
+                    value = matchDisplay.homeTeamName,
+                    onValueChange = {},
+                    label = { Text(text = "Gospodarz*", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    readOnly = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                        disabledTextColor = Color.White
+                    )
+                )
+
+                Row {
+                    OutlinedTextField(
+                        value = hostScore,
+                        onValueChange = onHostScoreChange,
+                        singleLine = true,
+                        readOnly = !editable,
+                        label = {
+                            Text(
+                                text = "Gospodarze", color = Color.LightGray,
+                                fontSize = 10.sp
+                            )
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            disabledTextColor = Color.White
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                    )
+                    Text(
+                        text = ":",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+
+                    OutlinedTextField(
+                        value = guestScore,
+                        onValueChange = onGuestScoreChange,
+                        singleLine = true,
+                        readOnly = !editable,
+                        label = {
+                            Text(
+                                text = "Goście", color = Color.LightGray,
+                                fontSize = 10.sp
+                            )
+                        },
+
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            disabledTextColor = Color.White
+                        ),
+
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                    )
+                }
+
+                OutlinedTextField(
+                    value = matchDisplay.awayTeamName,
+                    onValueChange = {},
+                    label = { Text(text = "Gość*", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    readOnly = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                        disabledTextColor = Color.White
+                    )
+                )
+
+                OutlinedTextField(
+                    value = matchDisplay.matchLocation?:"",
+                    onValueChange = {},
+                    singleLine = true,
+                    readOnly = true,
+                    label = { Text(text = "Lokalizacja", color = Color.LightGray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Gray,
+                    )
+                )
+
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    OutlinedTextField(
+                        value = matchDisplay.matchDate.split(" ")[0],
+                        onValueChange = {},
+//                        enabled = false,
+                        readOnly = true,
+                        label = { Text(text = "Data", color = Color.LightGray) },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            disabledTextColor = Color.White,
+                            disabledBorderColor = Gray
+                        ),
+                        modifier = Modifier
+                            .weight(2f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = matchDisplay.matchDate.split(' ')[1].substring(0, 5),
+                        onValueChange = {},
+                        readOnly = true,
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        label = { Text(text = "Czas", color = Color.LightGray) },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Gray,
+                            disabledTextColor = Color.White,
+                            disabledBorderColor = Gray
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = if(editable) Arrangement.Center
+                                            else Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            onDismiss()
+                        },
+                        modifier = Modifier
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Zamknij")
+                    }
+
+                    if(editable) {
+                        Button(
+                            onClick = onSave,
+                            modifier = Modifier
+                                .padding(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Green,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text(text = "Zapisz")
+                        }
                     }
                 }
 

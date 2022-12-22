@@ -5,6 +5,7 @@ import com.fgieracki.leagueplanner.data.api.LeagueWebService
 import com.fgieracki.leagueplanner.data.api.model.AddLeagueDTO
 import com.fgieracki.leagueplanner.data.api.model.AddMatchDTO
 import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
+import com.fgieracki.leagueplanner.data.api.model.UpdateMatchDTO
 import com.fgieracki.leagueplanner.data.local.*
 import com.fgieracki.leagueplanner.data.mappers.*
 import com.fgieracki.leagueplanner.data.model.League
@@ -135,6 +136,18 @@ class Repository(
             val match = response.body()?.toMatch()
             match?.let {
                 matchesCatcher.addMatch(match)
+            }
+            return response.code().toString()
+        }
+        return response.code().toString()
+    }
+
+    suspend fun updateMatch(matchId: Int, matchDetails: UpdateMatchDTO): String {
+        val response = api.updateMatch(token, matchId, matchDetails)
+        if(response.isSuccessful){
+            val match = response.body()?.toMatch()
+            match?.let {
+                matchesCatcher.updateMatch(match)
             }
             return response.code().toString()
         }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.fgieracki.leagueplanner.data.model.League
+import com.fgieracki.leagueplanner.data.model.MatchDisplay
 import com.fgieracki.leagueplanner.ui.Application.MatchesViewModel
 import com.fgieracki.leagueplanner.ui.components.*
 import com.fgieracki.leagueplanner.ui.theme.LightGray
@@ -24,6 +25,26 @@ fun ScreenLeagueMatches(
     viewModel: MatchesViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val showAddMatchDialog = remember { mutableStateOf(false) }
+    val showMatchDetailsDialog = remember { mutableStateOf(false) }
+    val matchDetails = remember {
+        mutableStateOf(
+            MatchDisplay(
+                matchId = -1,
+                leagueId = -1,
+                homeTeamId = -1,
+                awayTeamId = -1,
+                homeTeamScore = 0,
+                awayTeamScore = 0,
+                matchDate = "",
+                matchLocation = "",
+                homeTeamName = "",
+                awayTeamName = "",
+                homeTeamCity = "",
+                awayTeamCity = "",
+            )
+        )
+    }
+
     LaunchedEffect(leagueId) { viewModel.refreshMatches(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshTeams(leagueId) }
     LaunchedEffect(leagueId) { viewModel.refreshLeague(leagueId) }
@@ -33,6 +54,7 @@ fun ScreenLeagueMatches(
     val matches = viewModel.matchesState.collectAsState(initial = emptyList()).value
     val userId = viewModel.userId
     val context = LocalContext.current
+    val editable = league.ownerId == userId
 
     LaunchedEffect(Unit) {
         viewModel.toastChannel.collectLatest {
@@ -55,7 +77,38 @@ fun ScreenLeagueMatches(
             )
         },
         content = {
-            MatchList(matches, teams, modifier = Modifier.padding(it))
+            MatchList(matches, teams, modifier = Modifier.padding(it), onItemClick = {
+                matchDetails.value = it
+                showMatchDetailsDialog.value = true
+                viewModel.onHostScoreChange(matchDetails.value.homeTeamScore.toString())
+                viewModel.onGuestScoreChange(matchDetails.value.awayTeamScore.toString())
+            })
+
+            if(showMatchDetailsDialog.value){
+                MatchDetailsDialog(
+                    matchDetails.value,
+                    onDismiss = { showMatchDetailsDialog.value = false },
+                    editable = editable,
+                    onSave = { viewModel.updateMatch(matchDetails.value)
+                        showMatchDetailsDialog.value = false},
+                    hostScore = viewModel.newHostScore.collectAsState().value,
+                    onHostScoreChange = {
+                        if (!viewModel.onHostScoreChange(it))
+                            Toast.makeText(
+                                context, "Wynik musi być liczbą",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
+                    guestScore = viewModel.newGuestScore.collectAsState().value,
+                    onGuestScoreChange = {
+                        if (!viewModel.onGuestScoreChange(it))
+                            Toast.makeText(
+                                context, "Wynik musi być liczbą",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    },
+                )
+            }
 
             if (showAddMatchDialog.value) {
                 AddMatchDialog(

@@ -67,6 +67,7 @@ fun mapMatchAndTeamToMatchDisplay(match: Match, teams: List<Team>): MatchDisplay
         homeTeamScore = match.homeTeamScore,
         awayTeamScore = match.awayTeamScore,
         matchDate = match.matchDate,
+        matchLocation = match.matchLocation,
         homeTeamName = homeTeam?.name.orEmpty(),
         awayTeamName = awayTeam?.name.orEmpty(),
         homeTeamCity = homeTeam?.city.orEmpty(),
