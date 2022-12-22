@@ -602,7 +602,7 @@ fun AddMatchDialog(
                         ),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = btnColor,
-                            unfocusedBorderColor = Gray,
+                            unfocusedBorderColor = LeagueBlue,
                             disabledBorderColor = btnColor,
                             disabledTextColor = Color.White
                         ),
@@ -637,7 +637,7 @@ fun AddMatchDialog(
                         ),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = btnColor,
-                            unfocusedBorderColor = Gray,
+                            unfocusedBorderColor = LeagueBlue,
                             disabledBorderColor = btnColor,
                             disabledTextColor = Color.White
                         ),
@@ -688,7 +688,7 @@ fun AddMatchDialog(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        unfocusedBorderColor = Gray,
+                        unfocusedBorderColor = LeagueBlue,
                         focusedBorderColor = LeagueBlue,
                     )
                 )
@@ -707,8 +707,10 @@ fun AddMatchDialog(
 //                        readOnly = true,
                         label = { Text(text = "Data", color = Color.LightGray) },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = Gray,
+                            unfocusedBorderColor = LeagueBlue,
                             focusedBorderColor = LeagueBlue,
+                            disabledTextColor = Color.White,
+                            disabledBorderColor = LeagueBlue
                         ),
                         modifier = Modifier
                             .weight(2f)
@@ -726,8 +728,10 @@ fun AddMatchDialog(
                         ),
                         label = { Text(text = "Czas", color = Color.LightGray) },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = Gray,
+                            unfocusedBorderColor = LeagueBlue,
                             focusedBorderColor = LeagueBlue,
+                            disabledTextColor = Color.White,
+                            disabledBorderColor = LeagueBlue
                         ),
                         modifier = Modifier
                             .weight(1f)
