@@ -8,17 +8,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fgieracki.leagueplanner.R
-import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenAllLeagues
-import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenLeagueMatches
-import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenLeagueTeams
-import com.fgieracki.leagueplanner.ui.Application.Screens.ScreenMyLeagues
+import com.fgieracki.leagueplanner.ui.Application.Screens.*
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
 
-    fun backToAllLeagues() { //TODO: repair me
+    fun backToAllLeagues() {
         navController.popBackStack("all_leagues", inclusive = false)
     }
 
@@ -58,7 +55,11 @@ fun Navigation() {
         }
     }
 
-    NavHost(navController = navController, startDestination = "all_leagues") {
+    NavHost(navController = navController, startDestination = "sign_in") {
+        composable("sign_in") {
+            ScreenSignIn( onSignIn = { navigateToAllLeagues() } )
+        }
+
         composable("all_leagues") {
             ScreenAllLeagues(
                 onNavigateToMyLeagues = { navigateToMyLeagues() },
@@ -86,6 +87,8 @@ fun Navigation() {
                 onNavigateToLeagueMatches = { navigateToLeagueMatches(leagueId) },
                 onBackClick = { backToAllLeagues() })
         }
+
+
 
     }
 }

@@ -48,6 +48,9 @@ object LeagueWebService {
         suspend fun updateMatch(@Header ("Authorization") token: String,
                                 @Path("matchId") matchId: Int,
                                 @Body updatedMatch: UpdateMatchDTO): Response<MatchResponse>
+
+        @POST("login/")
+        suspend fun signIn(@Body loginData: LoginData): Response<LoginResponse>
     }
 
 

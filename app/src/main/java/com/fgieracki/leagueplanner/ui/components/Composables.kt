@@ -1,6 +1,5 @@
 package com.fgieracki.leagueplanner.ui.components
 
-import android.text.Editable
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -40,7 +39,6 @@ import com.fgieracki.leagueplanner.ui.theme.Gray
 import com.fgieracki.leagueplanner.ui.theme.LeagueBlue
 import com.fgieracki.leagueplanner.ui.theme.LightGray
 import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.datetime.date.DatePickerColors
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults

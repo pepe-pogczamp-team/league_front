@@ -1,23 +1,16 @@
 package com.fgieracki.leagueplanner.data
 
-import android.util.Log
+import android.app.Application
+import android.content.Context
 import com.fgieracki.leagueplanner.data.api.LeagueWebService
-import com.fgieracki.leagueplanner.data.api.model.AddLeagueDTO
-import com.fgieracki.leagueplanner.data.api.model.AddMatchDTO
-import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
-import com.fgieracki.leagueplanner.data.api.model.UpdateMatchDTO
+import com.fgieracki.leagueplanner.data.api.model.*
 import com.fgieracki.leagueplanner.data.local.*
 import com.fgieracki.leagueplanner.data.mappers.*
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.Team
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-
-
-val token = "Token 3d3e0c9aea6bc496fa4430982022dd7b56a44a91"
-val userId = 1
-
+import retrofit2.Response
 
 class Repository(
     private val api: LeagueWebService.LeaguePlannerApi = LeagueWebService.api,
@@ -25,15 +18,24 @@ class Repository(
     private val matchesCatcher: MatchesCatcher = InMemoryMatchesCatcher,
     private val leaguesCatcher: LeaguesCatcher = InMemoryLeaguesCatcher
 ) {
+    private var USER_TOKEN = "Token"
+    private val sharedPreference =  ContextCatcher.getContext().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE)
+
+    private fun getToken() {
+        var token: String = sharedPreference.getString("USER_TOKEN", "Token")?:"Token"
+        USER_TOKEN = token
+    }
 
     fun getLeagues(): Flow<List<League>> = flow<List<League>> {
+        getToken()
+
         if (leaguesCatcher.getLeagues().first().isNotEmpty()) {
             emit(leaguesCatcher.getLeagues().first())
         }
 
         //TODO: add TRY CATCH
         val response = try {
-            api.getLeagues(token)
+            api.getLeagues(USER_TOKEN)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -52,6 +54,7 @@ class Repository(
     }
 
     fun getTeams(leagueId: Int): Flow<List<Team>> = flow<List<Team>> {
+        getToken()
         if (teamsCatcher.getTeams(leagueId).first().isNotEmpty()) {
 
             emit(teamsCatcher.getTeams(leagueId).first())
@@ -60,7 +63,7 @@ class Repository(
         if (leagueId == -1) {
             emit(emptyList())
         } else {
-            val response = api.getTeams(token, leagueId)
+            val response = api.getTeams(USER_TOKEN, leagueId)
             if (response.isSuccessful) {
                 val teams = response.body()?.toTeamList()
                 teams?.let {
@@ -79,13 +82,14 @@ class Repository(
     }
 
     fun getMatches(leagueId: Int): Flow<List<Match>> = flow<List<Match>> {
+        getToken()
         if (matchesCatcher.getMatches(leagueId).first().isNotEmpty()) {
             emit(matchesCatcher.getMatches(leagueId).first())
         }
         if (leagueId == -1) {
             emit(emptyList())
         } else {
-            val response = api.getMatches(token, leagueId)
+            val response = api.getMatches(USER_TOKEN, leagueId)
             if (response.isSuccessful) {
                 val matches = response.body()?.toMatchList()
                 matches?.let {
@@ -100,7 +104,8 @@ class Repository(
     }
 
     suspend fun addLeague(newLeagueName: String): String {
-        val response = api.addLeague(token, AddLeagueDTO(name = newLeagueName))
+        getToken()
+        val response = api.addLeague(USER_TOKEN, AddLeagueDTO(name = newLeagueName))
         if (response.isSuccessful) {
             val league = response.body()?.toLeague()
             league?.let {
@@ -118,7 +123,7 @@ class Repository(
 //        Log.d("REPO_ADD_TEAM", newTeam.toString())
 
 
-        val response = api.addTeam(token, newTeam)
+        val response = api.addTeam(USER_TOKEN, newTeam)
         if (response.isSuccessful) {
             val team = response.body()?.toTeam()
             team?.let {
@@ -131,7 +136,7 @@ class Repository(
     }
 
     suspend fun addMatch(newMatch: AddMatchDTO): String {
-        val response = api.addMatch(token, newMatch)
+        val response = api.addMatch(USER_TOKEN, newMatch)
         if(response.isSuccessful){
             val match = response.body()?.toMatch()
             match?.let {
@@ -143,7 +148,7 @@ class Repository(
     }
 
     suspend fun updateMatch(matchId: Int, matchDetails: UpdateMatchDTO): String {
-        val response = api.updateMatch(token, matchId, matchDetails)
+        val response = api.updateMatch(USER_TOKEN, matchId, matchDetails)
         if(response.isSuccessful){
             val match = response.body()?.toMatch()
             match?.let {
@@ -152,5 +157,17 @@ class Repository(
             return response.code().toString()
         }
         return response.code().toString()
+    }
+
+    suspend fun signIn(username: String, password: String): Response<LoginResponse> {
+        val response = api.signIn(LoginData(username, password))
+        if(response.isSuccessful){
+            val token = response.body()?.token
+            token?.let {
+                USER_TOKEN = token
+            }
+        }
+        return response
+//        return api.signIn(LoginData(username, password))
     }
 }

@@ -1,15 +1,16 @@
 package com.fgieracki.leagueplanner.ui.Application
 
-import android.telecom.Call.Details
+import android.app.Application
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fgieracki.leagueplanner.data.Repository
 import com.fgieracki.leagueplanner.data.api.model.AddMatchDTO
 import com.fgieracki.leagueplanner.data.api.model.AddTeamDTO
 import com.fgieracki.leagueplanner.data.api.model.UpdateMatchDTO
+import com.fgieracki.leagueplanner.data.local.ContextCatcher
 import com.fgieracki.leagueplanner.data.model.League
 import com.fgieracki.leagueplanner.data.model.Match
 import com.fgieracki.leagueplanner.data.model.MatchDisplay
@@ -24,7 +25,64 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-const val globalUserId: Int = 1
+var globalUserId = -1
+
+class SignInViewModel(private val repository: Repository = Repository()) : ViewModel() {
+
+    private val _toastChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val toastChannel = _toastChannel
+
+    val navChannel = MutableSharedFlow<String>(extraBufferCapacity = 1)
+
+
+    val userId = MutableStateFlow<Int>(-1)
+
+    val userToken = MutableStateFlow<String>("Token")
+
+    val username: MutableStateFlow<String> = MutableStateFlow("")
+    val password: MutableStateFlow<String> = MutableStateFlow("")
+
+
+    fun signIn() {
+        if(username.value.isEmpty() || password.value.isEmpty()) {
+            _toastChannel.tryEmit("Please fill all fields")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = repository.signIn(username.value, password.value)
+            if (response.isSuccessful) {
+                userId.value = response.body()!!.userId
+                userToken.value = "Token " + response.body()!!.token
+                globalUserId = userId.value
+
+                val sharedPreference =  ContextCatcher.getContext().getSharedPreferences("USER_DATA",
+                                                                        Context.MODE_PRIVATE)
+                val editor = sharedPreference.edit()
+                editor.putString("USER_ID",userId.value.toString())
+                editor.putString("USER_TOKEN",userToken.value)
+                editor.commit()
+                globalUserId = userId.value
+
+                toastChannel.tryEmit("Signed in successfully")
+
+                navChannel.tryEmit("all_leagues")
+
+            } else {
+                _toastChannel.emit("Sign in failed")
+            }
+        }
+    }
+
+    fun onUsernameChange(newUsername: String) {
+        username.value = newUsername
+        Log.d("username", newUsername)
+    }
+
+    fun onPasswordChange(newPassword: String) {
+        password.value = newPassword
+    }
+}
+
 
 class LeagueListViewModel(private val repository: Repository = Repository()) : ViewModel() {
     val leaguesState: Flow<List<League>> = repository.getLeagues()
@@ -144,7 +202,7 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
             val response = repository.updateMatch(matchDetails.matchId, data)
             clearForm()
             if (response == "200") toastChannel.emit("Zaktualizowano mecz!")
-            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!") //TODO: DTO for match
+            else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!")
         }
     }
 
