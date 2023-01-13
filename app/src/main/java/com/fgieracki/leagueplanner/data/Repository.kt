@@ -1,6 +1,5 @@
 package com.fgieracki.leagueplanner.data
 
-import android.app.Application
 import android.content.Context
 import com.fgieracki.leagueplanner.data.api.LeagueWebService
 import com.fgieracki.leagueplanner.data.api.model.*
@@ -22,7 +21,7 @@ class Repository(
     private val sharedPreference =  ContextCatcher.getContext().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE)
 
     private fun getToken() {
-        var token: String = sharedPreference.getString("USER_TOKEN", "Token")?:"Token"
+        val token: String = sharedPreference.getString("USER_TOKEN", "Token")?:"Token"
         USER_TOKEN = token
     }
 
@@ -33,11 +32,9 @@ class Repository(
             emit(leaguesCatcher.getLeagues().first())
         }
 
-        //TODO: add TRY CATCH
         val response = try {
             api.getLeagues(USER_TOKEN)
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
 
@@ -169,5 +166,9 @@ class Repository(
         }
         return response
 //        return api.signIn(LoginData(username, password))
+    }
+
+    suspend fun signUp(username: String, password: String): Response<RegisterResponse> {
+        return api.signUp(LoginData(username, password))
     }
 }

@@ -44,31 +44,53 @@ class SignInViewModel(private val repository: Repository = Repository()) : ViewM
 
 
     fun signIn() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateData()) {
+                val response = repository.signIn(username.value, password.value)
+                if (response.isSuccessful) {
+                    userId.value = response.body()!!.userId
+                    userToken.value = "Token " + response.body()!!.token
+                    globalUserId = userId.value
+
+                    val sharedPreference = ContextCatcher.getContext().getSharedPreferences(
+                        "USER_DATA",
+                        Context.MODE_PRIVATE
+                    )
+                    val editor = sharedPreference.edit()
+                    editor.putString("USER_ID", userId.value.toString())
+                    editor.putString("USER_TOKEN", userToken.value)
+                    editor.commit()
+                    globalUserId = userId.value
+
+                    toastChannel.tryEmit("Signed in successfully")
+
+                    navChannel.tryEmit("all_leagues")
+
+                } else {
+                    _toastChannel.emit("Sign in failed")
+                }
+            }
+        }
+    }
+
+    private fun validateData(): Boolean {
         if(username.value.isEmpty() || password.value.isEmpty()) {
             _toastChannel.tryEmit("Please fill all fields")
-            return
+            return false
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = repository.signIn(username.value, password.value)
-            if (response.isSuccessful) {
-                userId.value = response.body()!!.userId
-                userToken.value = "Token " + response.body()!!.token
-                globalUserId = userId.value
+        return true
+    }
 
-                val sharedPreference =  ContextCatcher.getContext().getSharedPreferences("USER_DATA",
-                                                                        Context.MODE_PRIVATE)
-                val editor = sharedPreference.edit()
-                editor.putString("USER_ID",userId.value.toString())
-                editor.putString("USER_TOKEN",userToken.value)
-                editor.commit()
-                globalUserId = userId.value
-
-                toastChannel.tryEmit("Signed in successfully")
-
-                navChannel.tryEmit("all_leagues")
-
-            } else {
-                _toastChannel.emit("Sign in failed")
+    fun signUp(){
+        if(validateData()){
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = repository.signUp(username.value, password.value)
+                if (response.isSuccessful) {
+                    _toastChannel.emit("Signed up successfully")
+                } else {
+                    _toastChannel.emit("Sign up failed,\n Username already in use!")
+                }
+                clearData()
             }
         }
     }
@@ -80,6 +102,11 @@ class SignInViewModel(private val repository: Repository = Repository()) : ViewM
 
     fun onPasswordChange(newPassword: String) {
         password.value = newPassword
+    }
+
+    fun clearData() {
+        username.value = ""
+        password.value = ""
     }
 }
 

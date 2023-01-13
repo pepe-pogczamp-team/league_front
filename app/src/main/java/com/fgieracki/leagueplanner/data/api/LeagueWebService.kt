@@ -51,6 +51,9 @@ object LeagueWebService {
 
         @POST("login/")
         suspend fun signIn(@Body loginData: LoginData): Response<LoginResponse>
+
+        @POST("register/")
+        suspend fun signUp(@Body registerData: LoginData): Response<RegisterResponse>
     }
 
 
