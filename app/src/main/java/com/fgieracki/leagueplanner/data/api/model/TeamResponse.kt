@@ -9,5 +9,6 @@ data class TeamResponse(
     @SerializedName("league") val leagueId: Int,
     @SerializedName("name") val name: String,
     @SerializedName("city") val city: String,
+    @SerializedName("score") val score: Int,
 
 )

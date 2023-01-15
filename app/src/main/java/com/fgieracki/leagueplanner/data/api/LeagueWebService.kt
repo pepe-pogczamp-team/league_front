@@ -28,9 +28,9 @@ object LeagueWebService {
         suspend fun addLeague(@Header("Authorization") token:String,
                               @Body leagueName: AddLeagueDTO): Response<LeagueResponse>
 
-        @GET("teams/")
+        @GET("leagues/{leagueId}/scoreboard/")
         suspend fun getTeams(@Header("Authorization") token:String,
-                             @Query("leagueId") leagueId: Int): Response<TeamResponseDTO>
+                             @Path("leagueId") leagueId: Int): Response<TeamResponseDTO>
 
         @POST("teams/")
         suspend fun addTeam(@Header("Authorization") token:String,

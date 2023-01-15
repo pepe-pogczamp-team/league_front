@@ -37,7 +37,7 @@ fun TeamResponse.toTeam(): Team {
         name = name,
         teamId = teamId,
         leagueId = leagueId,
-        points = 0,
+        points = score,
         city = city,
     )
 }
