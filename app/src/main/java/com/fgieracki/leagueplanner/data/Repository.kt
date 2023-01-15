@@ -139,7 +139,7 @@ class Repository(
             match?.let {
                 matchesCatcher.addMatch(match)
             }
-            return response.code().toString()
+            return response.code().toString()+";"+ response.body()?.goodWeather;
         }
         return response.code().toString()
     }

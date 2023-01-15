@@ -8,5 +8,6 @@ data class Match (
     val homeTeamScore: Int?,
     val awayTeamScore: Int?,
     val matchDate: String,
-    val matchLocation: String? = null
+    val matchLocation: String? = null,
+    val goodWeather: Boolean? = null
 )

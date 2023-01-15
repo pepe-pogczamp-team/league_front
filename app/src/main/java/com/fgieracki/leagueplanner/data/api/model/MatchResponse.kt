@@ -13,4 +13,5 @@ data class MatchResponse(
     @SerializedName("visitor_score") val awayTeamScore: Int,
     @SerializedName("address") val address: String,
     @SerializedName("datetime") val date: String,
+    @SerializedName("is_weather_good") val goodWeather: Boolean
 )

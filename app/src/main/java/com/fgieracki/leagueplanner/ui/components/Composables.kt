@@ -216,7 +216,6 @@ fun MatchList(matches: List<Match>, teams: List<Team>, modifier: Modifier = Modi
 
 @Composable
 fun MatchItem(match: MatchDisplay, onItemClick: (MatchDisplay) -> Unit) {
-    Log.d("MatchItem", match.toString())
     val team1 = match.homeTeamName
     val team2 = match.awayTeamName
     val scores =

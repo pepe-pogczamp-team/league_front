@@ -97,7 +97,6 @@ class SignInViewModel(private val repository: Repository = Repository()) : ViewM
 
     fun onUsernameChange(newUsername: String) {
         username.value = newUsername
-        Log.d("username", newUsername)
     }
 
     fun onPasswordChange(newPassword: String) {
@@ -271,7 +270,6 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
 
     fun onTimeChange(newTime: LocalTime) {
         this.newTime.value = newTime
-        Log.d("datetime", newDate.toString() + "T" + DateTimeFormatter.ofPattern("hh:mm").format(this.newTime.value))
     }
 
     fun refreshTeams(leagueId: Int) {
@@ -304,7 +302,7 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
             || newAddress.value == ""
         ) return false
         val tmpDate = (newDate.value.toString()
-                + "T" + newTime.value.format(DateTimeFormatter.ofPattern("hh:mm")))
+                + "T" + newTime.value.format(DateTimeFormatter.ofPattern("hh:mm:ss")))
         viewModelScope.launch() {
             val leagueId = leagueState.first().leagueId
             val response = repository.addMatch(
@@ -320,7 +318,11 @@ class MatchesViewModel(private val repository: Repository = Repository()) : View
                     city = newHost.value.city
                 )
             )
-            if (response == "201") toastChannel.emit("Dodano mecz!")
+            val goodWeather = response.substringAfter(";")
+            if (response.startsWith("201")){
+                if(goodWeather == "true") toastChannel.emit("Dodano mecz! Pogoda na mecz jest dobra!")
+                else toastChannel.emit("Dodano mecz! Pogoda na mecz jest zła!")
+            }
             else toastChannel.emit("Wystąpił błąd! Spróbuj ponownie!")
             clearForm()
         }
